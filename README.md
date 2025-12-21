@@ -81,3 +81,51 @@ WantedBy=multi-user.target
 1. Installe "Fully Kiosk Browser" sur la tablette
 2. Configure l'URL de démarrage
 3. Active le mode kiosk
+
+# Mise à jour VPS depuis Git
+
+## Commande rapide (copier-coller)
+
+```bash
+cd /var/www/apps/ez-dashboard && git pull && dotnet build -c Release && sudo systemctl restart mamy-dashboard
+```
+
+## Étape par étape
+
+```bash
+# 1. Aller dans le dossier
+cd /var/www/apps/ez-dashboard
+
+# 2. Récupérer les modifications
+git pull
+
+# 3. Rebuild
+dotnet build -c Release
+
+# 4. Redémarrer le service
+sudo systemctl restart mamy-dashboard
+
+# 5. Vérifier que ça tourne
+sudo systemctl status mamy-dashboard
+```
+
+## Commandes utiles
+
+| Action | Commande |
+|--------|----------|
+| Voir les logs | `sudo journalctl -u mamy-dashboard -f` |
+| Voir le status | `sudo systemctl status mamy-dashboard` |
+| Redémarrer | `sudo systemctl restart mamy-dashboard` |
+| Arrêter | `sudo systemctl stop mamy-dashboard` |
+| Démarrer | `sudo systemctl start mamy-dashboard` |
+
+## En cas de problème
+
+```bash
+# Voir les dernières erreurs
+sudo journalctl -u mamy-dashboard -n 50 --no-pager
+
+# Tester manuellement
+cd /var/www/apps/ez-dashboard
+dotnet run
+```
