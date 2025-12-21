@@ -30,6 +30,53 @@ app.UseStaticFiles();
 
 var appSettings = builder.Configuration.GetSection("AppSettings").Get<AppSettings>() ?? new AppSettings();
 
+// ============== RATE LIMITING (Anti brute-force) ==============
+var failedAttempts = new Dictionary<string, (int Count, DateTime? BannedUntil)>();
+const int MAX_ATTEMPTS = 5;
+const int BAN_HOURS = 24;
+
+string GetClientIp(HttpRequest request) =>
+    request.Headers["X-Forwarded-For"].FirstOrDefault()?.Split(',')[0].Trim()
+    ?? request.HttpContext.Connection.RemoteIpAddress?.ToString()
+    ?? "unknown";
+
+(bool IsValid, string? Error) ValidatePin(HttpRequest request)
+{
+    var ip = GetClientIp(request);
+
+    // Vérifier si l'IP est bannie
+    if (failedAttempts.TryGetValue(ip, out var attempt) && attempt.BannedUntil.HasValue)
+    {
+        if (DateTime.Now < attempt.BannedUntil.Value)
+        {
+            var remaining = attempt.BannedUntil.Value - DateTime.Now;
+            return (false, $"IP bannie. Réessayez dans {(int)remaining.TotalHours}h{remaining.Minutes:D2}min");
+        }
+        // Ban expiré, reset
+        failedAttempts.Remove(ip);
+    }
+
+    // Vérifier le PIN
+    if (!request.Headers.TryGetValue("X-Admin-Pin", out var pin) || pin != appSettings.AdminPin)
+    {
+        // Incrémenter les tentatives échouées
+        var currentCount = failedAttempts.TryGetValue(ip, out var current) ? current.Count + 1 : 1;
+
+        if (currentCount >= MAX_ATTEMPTS)
+        {
+            failedAttempts[ip] = (currentCount, DateTime.Now.AddHours(BAN_HOURS));
+            return (false, $"Trop de tentatives. IP bannie pour {BAN_HOURS}h.");
+        }
+
+        failedAttempts[ip] = (currentCount, null);
+        return (false, $"PIN incorrect. Tentative {currentCount}/{MAX_ATTEMPTS}");
+    }
+
+    // PIN valide - reset les tentatives
+    failedAttempts.Remove(ip);
+    return (true, null);
+}
+
 // ============== API ENDPOINTS ==============
 
 // GET /api/time - Retourne l'heure et la date formatées
@@ -90,8 +137,11 @@ app.MapGet("/api/messages", async (AppDbContext db) =>
 // POST /api/messages - Créer un nouveau message (auth requise, max 3 messages)
 app.MapPost("/api/messages", async (HttpRequest request, AppDbContext db, CreateMessageRequest msg) =>
 {
-    if (!request.Headers.TryGetValue("X-Admin-Pin", out var pin) || pin != appSettings.AdminPin)
-        return Results.Unauthorized();
+    var (isValid, error) = ValidatePin(request);
+    if (!isValid)
+        return error!.Contains("bannie")
+            ? Results.Json(new { error }, statusCode: 429)
+            : Results.Json(new { error }, statusCode: 401);
 
     // Vérifier si on a déjà 3 messages actifs
     var now = DateTime.Now;
@@ -116,8 +166,11 @@ app.MapPost("/api/messages", async (HttpRequest request, AppDbContext db, Create
 // DELETE /api/messages/{id} - Supprimer un message (auth requise)
 app.MapDelete("/api/messages/{id}", async (HttpRequest request, AppDbContext db, int id) =>
 {
-    if (!request.Headers.TryGetValue("X-Admin-Pin", out var pin) || pin != appSettings.AdminPin)
-        return Results.Unauthorized();
+    var (isValid, error) = ValidatePin(request);
+    if (!isValid)
+        return error!.Contains("bannie")
+            ? Results.Json(new { error }, statusCode: 429)
+            : Results.Json(new { error }, statusCode: 401);
 
     var message = await db.Messages.FindAsync(id);
     if (message == null) return Results.NotFound();
@@ -131,8 +184,11 @@ app.MapDelete("/api/messages/{id}", async (HttpRequest request, AppDbContext db,
 // POST /api/admin/verify - Vérifier le PIN admin
 app.MapPost("/api/admin/verify", (HttpRequest request) =>
 {
-    if (!request.Headers.TryGetValue("X-Admin-Pin", out var pin) || pin != appSettings.AdminPin)
-        return Results.Unauthorized();
+    var (isValid, error) = ValidatePin(request);
+    if (!isValid)
+        return error!.Contains("bannie")
+            ? Results.Json(new { error }, statusCode: 429)
+            : Results.Json(new { error }, statusCode: 401);
 
     return Results.Ok(new { valid = true });
 });
