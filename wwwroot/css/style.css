@@ -237,6 +237,16 @@ html, body {
     font-style: italic;
 }
 
+/* Événements passés */
+.day-block li.past {
+    opacity: 0.4;
+    text-decoration: line-through;
+}
+
+.day-block li.past .event-time {
+    color: inherit;
+}
+
 /* ========== FOOTER (Refresh) ========== */
 #footer {
     text-align: center;

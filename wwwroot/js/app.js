@@ -48,7 +48,7 @@ async function updateEvents() {
         // Aujourd'hui
         if (data.today && data.today.length > 0) {
             todayEventsEl.innerHTML = data.today.map(evt => `
-                <li>
+                <li class="${evt.isPast ? 'past' : ''}">
                     <span class="event-time">${evt.time}</span>
                     <span class="event-title">${evt.title}</span>
                 </li>

@@ -35,6 +35,7 @@ public class GoogleCalendarService
             var events = ParseICalEvents(icsContent);
 
             var now = DateTime.Now.Date;
+            var currentTime = DateTime.Now;
             var tomorrow = now.AddDays(1);
 
             var todayEvents = events
@@ -43,7 +44,8 @@ public class GoogleCalendarService
                 .Select(e => new
                 {
                     time = e.IsAllDay ? "Journée" : e.Start.ToString("HH'h'mm"),
-                    title = e.Summary
+                    title = e.Summary,
+                    isPast = !e.IsAllDay && e.Start < currentTime
                 })
                 .ToList();
 
