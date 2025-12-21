@@ -2,14 +2,14 @@
 
 Tableau d'affichage pour personnes âgées avec :
 - 🕐 Heure et date en gros
-- 📅 Événements du jour et du lendemain (Google Calendar)
+- 📅 Événements du jour et du lendemain (via URL iCal)
 - 💬 Messages de la famille
 - 🌙 Mode sombre automatique (20h-7h)
+- 🔄 Bouton refresh manuel (avec cooldown de 30s)
 
 ## Installation locale
 
 ```bash
-cd MamyDashboard
 dotnet restore
 dotnet run
 ```
@@ -18,34 +18,27 @@ Ouvre http://localhost:5000
 
 ## Configuration
 
-### 1. appsettings.json
+### appsettings.json
 
 ```json
 {
   "AppSettings": {
     "AdminPin": "1234",
-    "GoogleCalendarId": "ton-calendar-id@group.calendar.google.com",
-    "GoogleCredentialsPath": "credentials.json"
+    "ICalUrl": "https://calendar.google.com/calendar/ical/xxx/basic.ics"
   }
 }
 ```
 
-### 2. Google Calendar API
-
-1. Va sur https://console.cloud.google.com/
-2. Crée un projet "MamyDashboard"
-3. Active l'API "Google Calendar API"
-4. Va dans "Identifiants" → "Créer des identifiants" → "Compte de service"
-5. Télécharge le fichier JSON et renomme-le `credentials.json`
-6. Place-le dans le dossier `MamyDashboard/`
-
-### 3. Créer et partager l'agenda
+### Récupérer l'URL iCal de Google Calendar
 
 1. Va sur https://calendar.google.com/
-2. Crée un nouvel agenda "Mamy"
-3. Dans les paramètres de l'agenda, copie l'"ID de l'agenda" (format: xxx@group.calendar.google.com)
-4. Partage l'agenda avec l'email du compte de service (visible dans le JSON, champ `client_email`)
-5. Colle l'ID dans `appsettings.json`
+2. Clique sur l'engrenage ⚙️ → **Paramètres**
+3. Dans le menu de gauche, clique sur ton agenda
+4. Descends jusqu'à **Adresse secrète au format iCal**
+5. Copie l'URL (format: `https://calendar.google.com/calendar/ical/.../basic.ics`)
+6. Colle cette URL dans `appsettings.json` → `ICalUrl`
+
+> ⚠️ **Important** : Utilise l'adresse **secrète** (pas l'adresse publique) pour accéder aux événements privés.
 
 ## Déploiement VPS
 
@@ -53,14 +46,29 @@ Ouvre http://localhost:5000
 # Sur le VPS
 cd /var/www/apps
 git clone https://github.com/TON_USER/mamy-dashboard.git
-cd mamy-dashboard/MamyDashboard
+cd mamy-dashboard
 
-# Copier le credentials.json
-# Modifier appsettings.json
-
+# Modifier appsettings.json avec l'URL iCal
 dotnet build -c Release
 
-# Créer le service systemd (voir README-deploy.md)
+# Créer le service systemd (voir ci-dessous)
+```
+
+### Service systemd
+
+```ini
+[Unit]
+Description=Mamy Dashboard
+After=network.target
+
+[Service]
+WorkingDirectory=/var/www/apps/mamy-dashboard
+ExecStart=/usr/bin/dotnet run --urls "http://localhost:5000"
+Restart=always
+User=www-data
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## URLs

@@ -213,6 +213,34 @@ html, body {
     font-style: italic;
 }
 
+/* ========== FOOTER (Refresh) ========== */
+#footer {
+    text-align: center;
+    padding: 10px;
+}
+
+#refresh-btn {
+    background: transparent;
+    border: 1px solid rgba(128,128,128,0.3);
+    color: var(--text-color);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s, background 0.2s;
+}
+
+#refresh-btn:hover:not(:disabled) {
+    opacity: 1;
+    background: rgba(128,128,128,0.1);
+}
+
+#refresh-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.3;
+}
+
 /* ========== SCROLLBAR ========== */
 ::-webkit-scrollbar {
     width: 8px;

@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
-    <PackageReference Include="Google.Apis.Calendar.v3" Version="1.68.0.3536" />
   </ItemGroup>
 
   <!-- Exclude test folder from compilation to avoid duplicate definitions -->

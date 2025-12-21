@@ -1,91 +1,154 @@
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Calendar.v3;
-using Google.Apis.Calendar.v3.Data;
-using Google.Apis.Services;
 using Microsoft.Extensions.Options;
+using System.Text.RegularExpressions;
 
 namespace MamyDashboard.Services;
 
 public class GoogleCalendarService
 {
-    private readonly CalendarService? _calendarService;
-    private readonly string _calendarId;
+    private readonly HttpClient _httpClient;
+    private readonly string _iCalUrl;
     private readonly ILogger<GoogleCalendarService> _logger;
 
     public GoogleCalendarService(IOptions<AppSettings> settings, ILogger<GoogleCalendarService> logger)
     {
         _logger = logger;
-        _calendarId = settings.Value.GoogleCalendarId;
-        var credentialsPath = settings.Value.GoogleCredentialsPath;
-
-        if (string.IsNullOrEmpty(_calendarId) || !File.Exists(credentialsPath))
-        {
-            _logger.LogWarning("Google Calendar non configuré. CalendarId: {CalendarId}, CredentialsPath: {Path}", 
-                _calendarId, credentialsPath);
-            return;
-        }
-
-        try
-        {
-            var credential = GoogleCredential
-                .FromFile(credentialsPath)
-                .CreateScoped(CalendarService.Scope.CalendarReadonly);
-
-            _calendarService = new CalendarService(new BaseClientService.Initializer
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = "MamyDashboard"
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Erreur lors de l'initialisation de Google Calendar");
-        }
+        _iCalUrl = settings.Value.ICalUrl;
+        _httpClient = new HttpClient();
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
     }
 
     public async Task<object> GetEventsAsync()
     {
-        if (_calendarService == null)
+        if (string.IsNullOrEmpty(_iCalUrl))
         {
             return new
             {
-                today = new[] { new { time = "⚠️", title = "Calendrier non configuré" } },
+                today = new[] { new { time = "⚠️", title = "URL iCal non configurée" } },
                 tomorrow = Array.Empty<object>()
             };
         }
 
-        var now = DateTime.Now.Date;
-        var tomorrow = now.AddDays(1);
-        var dayAfter = now.AddDays(2);
-
-        var request = _calendarService.Events.List(_calendarId);
-        request.TimeMinDateTimeOffset = now;
-        request.TimeMaxDateTimeOffset = dayAfter;
-        request.SingleEvents = true;
-        request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
-
-        var events = await request.ExecuteAsync();
-
-        var todayEvents = new List<object>();
-        var tomorrowEvents = new List<object>();
-
-        foreach (var evt in events.Items ?? Enumerable.Empty<Event>())
+        try
         {
-            var start = evt.Start.DateTime ?? DateTime.Parse(evt.Start.Date);
-            var eventObj = new
-            {
-                time = evt.Start.DateTime.HasValue 
-                    ? start.ToString("HH'h'mm") 
-                    : "Journée",
-                title = evt.Summary ?? "(Sans titre)"
-            };
+            var icsContent = await _httpClient.GetStringAsync(_iCalUrl);
+            var events = ParseICalEvents(icsContent);
 
-            if (start.Date == now)
-                todayEvents.Add(eventObj);
-            else if (start.Date == tomorrow)
-                tomorrowEvents.Add(eventObj);
+            var now = DateTime.Now.Date;
+            var tomorrow = now.AddDays(1);
+
+            var todayEvents = events
+                .Where(e => e.Start.Date == now)
+                .OrderBy(e => e.Start)
+                .Select(e => new
+                {
+                    time = e.IsAllDay ? "Journée" : e.Start.ToString("HH'h'mm"),
+                    title = e.Summary
+                })
+                .ToList();
+
+            var tomorrowEvents = events
+                .Where(e => e.Start.Date == tomorrow)
+                .OrderBy(e => e.Start)
+                .Select(e => new
+                {
+                    time = e.IsAllDay ? "Journée" : e.Start.ToString("HH'h'mm"),
+                    title = e.Summary
+                })
+                .ToList();
+
+            return new { today = todayEvents, tomorrow = tomorrowEvents };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur lors de la récupération du calendrier iCal");
+            return new
+            {
+                today = new[] { new { time = "⚠️", title = "Erreur de chargement" } },
+                tomorrow = Array.Empty<object>()
+            };
+        }
+    }
+
+    private List<CalendarEvent> ParseICalEvents(string icsContent)
+    {
+        var events = new List<CalendarEvent>();
+        var eventBlocks = Regex.Matches(icsContent, @"BEGIN:VEVENT(.*?)END:VEVENT", RegexOptions.Singleline);
+
+        foreach (Match block in eventBlocks)
+        {
+            var content = block.Groups[1].Value;
+
+            var summary = ExtractValue(content, "SUMMARY");
+            if (string.IsNullOrEmpty(summary))
+                summary = "(Sans titre)";
+
+            var dtStart = ExtractDateTimeValue(content);
+            if (dtStart == null)
+                continue;
+
+            events.Add(new CalendarEvent
+            {
+                Summary = summary,
+                Start = dtStart.Value.DateTime,
+                IsAllDay = dtStart.Value.IsAllDay
+            });
         }
 
-        return new { today = todayEvents, tomorrow = tomorrowEvents };
+        return events;
+    }
+
+    private string? ExtractValue(string content, string property)
+    {
+        // Handle properties that may have parameters (like SUMMARY;LANGUAGE=fr:)
+        var pattern = $@"^{property}[^:]*:(.+?)(?:\r?\n(?![ \t])|$)";
+        var match = Regex.Match(content, pattern, RegexOptions.Multiline);
+        if (match.Success)
+        {
+            var value = match.Groups[1].Value.Trim();
+            // Handle line continuations (lines starting with space or tab)
+            value = Regex.Replace(value, @"\r?\n[ \t]", "");
+            // Unescape common escaped characters
+            value = value.Replace("\\n", "\n").Replace("\\,", ",").Replace("\\;", ";").Replace("\\\\", "\\");
+            return value;
+        }
+        return null;
+    }
+
+    private (DateTime DateTime, bool IsAllDay)? ExtractDateTimeValue(string content)
+    {
+        // Try DTSTART with timezone or as datetime
+        var patterns = new[]
+        {
+            @"DTSTART(?:;TZID=[^:]+)?:(\d{8}T\d{6})",  // DateTime format: 20231225T140000
+            @"DTSTART(?:;VALUE=DATE)?:(\d{8})(?!\d)",   // Date only format: 20231225
+        };
+
+        foreach (var pattern in patterns)
+        {
+            var match = Regex.Match(content, pattern);
+            if (match.Success)
+            {
+                var value = match.Groups[1].Value;
+                if (value.Length == 8) // Date only
+                {
+                    if (DateTime.TryParseExact(value, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out var date))
+                        return (date, true);
+                }
+                else if (value.Length == 15) // DateTime
+                {
+                    if (DateTime.TryParseExact(value, "yyyyMMdd'T'HHmmss", null, System.Globalization.DateTimeStyles.None, out var dateTime))
+                        return (dateTime, false);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private class CalendarEvent
+    {
+        public string Summary { get; set; } = "";
+        public DateTime Start { get; set; }
+        public bool IsAllDay { get; set; }
     }
 }

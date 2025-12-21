@@ -155,6 +155,5 @@ record CreateMessageRequest(string Content, string Author, int? ExpiresInHours);
 public class AppSettings
 {
     public string AdminPin { get; set; } = "1234";
-    public string GoogleCalendarId { get; set; } = "";
-    public string GoogleCredentialsPath { get; set; } = "credentials.json";
+    public string ICalUrl { get; set; } = "";
 }

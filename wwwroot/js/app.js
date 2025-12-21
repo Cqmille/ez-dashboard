@@ -2,6 +2,7 @@
 const REFRESH_TIME_INTERVAL = 1000;      // 1 seconde
 const REFRESH_EVENTS_INTERVAL = 60000;   // 1 minute
 const REFRESH_MESSAGES_INTERVAL = 30000; // 30 secondes
+const REFRESH_COOLDOWN = 30;             // 30 secondes de cooldown
 
 // ========== ELEMENTS ==========
 const timeEl = document.getElementById('time');
@@ -10,6 +11,10 @@ const dateEl = document.getElementById('date');
 const todayEventsEl = document.getElementById('today-events');
 const tomorrowEventsEl = document.getElementById('tomorrow-events');
 const messagesContainer = document.getElementById('messages-container');
+const refreshBtn = document.getElementById('refresh-btn');
+
+// ========== STATE ==========
+let refreshCooldown = 0;
 
 // ========== FONCTIONS ==========
 
@@ -131,3 +136,35 @@ setInterval(updateMessages, REFRESH_MESSAGES_INTERVAL);
 // Empêcher le zoom sur mobile
 document.addEventListener('gesturestart', e => e.preventDefault());
 document.addEventListener('gesturechange', e => e.preventDefault());
+
+// ========== REFRESH MANUEL ==========
+
+function manualRefresh() {
+    if (refreshCooldown > 0) return;
+
+    // Lancer les mises à jour
+    updateEvents();
+    updateMessages();
+
+    // Démarrer le cooldown
+    refreshCooldown = REFRESH_COOLDOWN;
+    refreshBtn.disabled = true;
+    updateRefreshButton();
+
+    const interval = setInterval(() => {
+        refreshCooldown--;
+        updateRefreshButton();
+
+        if (refreshCooldown <= 0) {
+            clearInterval(interval);
+            refreshBtn.disabled = false;
+            refreshBtn.textContent = '🔄 Actualiser';
+        }
+    }, 1000);
+}
+
+function updateRefreshButton() {
+    if (refreshCooldown > 0) {
+        refreshBtn.textContent = `⏳ ${refreshCooldown}s`;
+    }
+}
