@@ -162,104 +162,106 @@ body::after {
         0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* ========== MESSAGES ========== */
-#messages-section {
+/* ========== MESSAGE BADGES (Haut droite) ========== */
+#message-badges {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+    max-width: 400px;
 }
 
-.message-card {
-    background: var(--message-bg);
+/* Masquer si vide */
+#message-badges:empty {
+    display: none;
+}
+
+.message-badge {
+    background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(var(--glass-blur));
     -webkit-backdrop-filter: blur(var(--glass-blur));
     border: 2px solid var(--message-accent);
-    border-radius: 20px;
-    padding: 20px 24px;
-    animation: slideIn 0.4s ease-out, glowPulse 3s ease-in-out infinite;
+    border-radius: 16px;
+    padding: 12px 16px;
+    animation: badgeSlideIn 0.4s ease-out;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 12px;
     box-shadow:
         0 0 20px var(--message-accent-glow),
-        0 8px 32px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        0 8px 24px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    transition: all var(--transition-smooth);
 }
 
-.message-body {
+.message-badge:hover {
+    transform: translateX(-5px);
+    box-shadow:
+        0 0 30px var(--message-accent-glow),
+        0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.message-badge-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.message-badge-content {
     flex: 1;
+    min-width: 0;
 }
 
-.message-content {
-    font-size: 1.6rem;
-    margin-bottom: 10px;
+.message-badge-text {
+    font-size: 1.1rem;
     color: var(--text-primary);
     font-weight: 600;
-    line-height: 1.4;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.message-meta {
-    font-size: 1.1rem;
+.message-badge-author {
+    font-size: 0.9rem;
     color: var(--message-accent);
     font-weight: 500;
+    margin-top: 2px;
 }
 
-.delete-btn {
-    background: linear-gradient(135deg, var(--danger-color) 0%, #cc3a47 100%);
+.message-badge-close {
+    background: var(--danger-color);
     color: white;
     border: none;
     border-radius: 50%;
-    width: 56px;
-    height: 56px;
-    font-size: 1.8rem;
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--transition-smooth);
     flex-shrink: 0;
-    box-shadow:
-        0 0 15px var(--danger-glow),
-        0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all var(--transition-smooth);
+    opacity: 0.8;
 }
 
-.delete-btn:hover {
-    background: linear-gradient(135deg, #ff5a6a 0%, var(--danger-color) 100%);
+.message-badge-close:hover {
+    opacity: 1;
     transform: scale(1.1);
-    box-shadow:
-        0 0 25px var(--danger-glow),
-        0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
-.delete-btn:active {
-    transform: scale(0.95);
-}
-
-@keyframes slideIn {
+@keyframes badgeSlideIn {
     from {
         opacity: 0;
-        transform: translateY(-15px);
+        transform: translateX(50px);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes glowPulse {
-    0%, 100% {
-        box-shadow:
-            0 0 20px var(--message-accent-glow),
-            0 8px 32px rgba(0, 0, 0, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-    50% {
-        box-shadow:
-            0 0 30px var(--message-accent-glow),
-            0 8px 32px rgba(0, 0, 0, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        transform: translateX(0);
     }
 }
 

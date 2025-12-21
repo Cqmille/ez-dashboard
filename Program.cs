@@ -87,11 +87,17 @@ app.MapGet("/api/messages", async (AppDbContext db) =>
     }));
 });
 
-// POST /api/messages - Créer un nouveau message (auth requise)
+// POST /api/messages - Créer un nouveau message (auth requise, max 3 messages)
 app.MapPost("/api/messages", async (HttpRequest request, AppDbContext db, CreateMessageRequest msg) =>
 {
     if (!request.Headers.TryGetValue("X-Admin-Pin", out var pin) || pin != appSettings.AdminPin)
         return Results.Unauthorized();
+
+    // Vérifier si on a déjà 3 messages actifs
+    var now = DateTime.Now;
+    var activeMessagesCount = await db.Messages.CountAsync(m => m.ExpiresAt > now);
+    if (activeMessagesCount >= 3)
+        return Results.BadRequest(new { error = "Maximum 3 messages actifs autorisés. Supprimez un message existant." });
 
     var message = new Message
     {

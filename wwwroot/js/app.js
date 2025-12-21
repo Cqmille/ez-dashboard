@@ -10,7 +10,7 @@ const momentEl = document.getElementById('moment');
 const dateEl = document.getElementById('date');
 const todayEventsEl = document.getElementById('today-events');
 const tomorrowEventsEl = document.getElementById('tomorrow-events');
-const messagesContainer = document.getElementById('messages-container');
+const messageBadgesEl = document.getElementById('message-badges');
 const refreshBtn = document.getElementById('refresh-btn');
 
 // ========== STATE ==========
@@ -71,17 +71,19 @@ async function updateMessages() {
         const messages = await response.json();
 
         if (messages.length === 0) {
-            messagesContainer.innerHTML = '';
+            messageBadgesEl.innerHTML = '';
             return;
         }
 
-        messagesContainer.innerHTML = messages.map(msg => `
-            <div class="message-card" data-id="${msg.id}">
-                <div class="message-body">
-                    <div class="message-content">💬 "${msg.content}"</div>
-                    <div class="message-meta">— ${msg.author}, ${msg.timeAgo}</div>
+        // Afficher max 3 messages en badges (haut droite)
+        messageBadgesEl.innerHTML = messages.slice(0, 3).map(msg => `
+            <div class="message-badge" data-id="${msg.id}">
+                <span class="message-badge-icon">💬</span>
+                <div class="message-badge-content">
+                    <div class="message-badge-text">${msg.content}</div>
+                    <div class="message-badge-author">— ${msg.author}</div>
                 </div>
-                <button class="delete-btn" onclick="deleteMessage(${msg.id})" title="Supprimer">✕</button>
+                <button class="message-badge-close" onclick="deleteMessage(${msg.id})" title="Supprimer">✕</button>
             </div>
         `).join('');
     } catch (error) {
