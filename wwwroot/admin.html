@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Tableau Mamy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        /* Login */
+        #login-section input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.5rem;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            letter-spacing: 10px;
+            margin-bottom: 15px;
+        }
+
+        #login-section input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            width: auto;
+            font-size: 0.9rem;
+        }
+
+        /* Form */
+        #admin-section {
+            display: none;
+        }
+
+        #admin-section.active {
+            display: block;
+        }
+
+        #login-section.hidden {
+            display: none;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Messages list */
+        .message-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .message-item-content {
+            flex: 1;
+        }
+
+        .message-item-text {
+            font-weight: 500;
+        }
+
+        .message-item-meta {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .status.success {
+            display: block;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💌 Messages pour Mamy</h1>
+
+        <!-- Login -->
+        <div id="login-section" class="card">
+            <h2>🔐 Code famille</h2>
+            <input type="password" id="pin-input" placeholder="••••" maxlength="10" inputmode="numeric">
+            <button class="btn-primary" onclick="login()">Entrer</button>
+            <div id="login-status" class="status"></div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="admin-section">
+            <!-- Nouveau message -->
+            <div class="card">
+                <h2>✍️ Nouveau message</h2>
+                <div id="form-status" class="status"></div>
+                
+                <label for="author">Ton prénom</label>
+                <input type="text" id="author" placeholder="Marie">
+
+                <label for="content">Message</label>
+                <textarea id="content" placeholder="Coucou Mamy ! On passe te voir demain 😊"></textarea>
+
+                <label for="expires">Afficher pendant</label>
+                <select id="expires">
+                    <option value="6">6 heures</option>
+                    <option value="12">12 heures</option>
+                    <option value="24" selected>24 heures</option>
+                    <option value="48">48 heures</option>
+                    <option value="72">3 jours</option>
+                </select>
+
+                <button class="btn-primary" onclick="sendMessage()">Envoyer 💬</button>
+            </div>
+
+            <!-- Messages actuels -->
+            <div class="card">
+                <h2>📋 Messages en cours</h2>
+                <div id="messages-list">
+                    <div class="empty-state">Chargement...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let adminPin = '';
+
+        // Récupérer le PIN sauvegardé
+        const savedPin = localStorage.getItem('mamyAdminPin');
+        if (savedPin) {
+            adminPin = savedPin;
+            verifyAndEnter();
+        }
+
+        async function login() {
+            const pin = document.getElementById('pin-input').value;
+            const statusEl = document.getElementById('login-status');
+            
+            try {
+                const response = await fetch('/api/admin/verify', {
+                    method: 'POST',
+                    headers: { 'X-Admin-Pin': pin }
+                });
+
+                if (response.ok) {
+                    adminPin = pin;
+                    localStorage.setItem('mamyAdminPin', pin);
+                    document.getElementById('login-section').classList.add('hidden');
+                    document.getElementById('admin-section').classList.add('active');
+                    loadMessages();
+                } else {
+                    statusEl.className = 'status error';
+                    statusEl.textContent = 'Code incorrect';
+                }
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = 'Erreur de connexion';
+            }
+        }
+
+        async function verifyAndEnter() {
+            try {
+                const response = await fetch('/api/admin/verify', {
+                    method: 'POST',
+                    headers: { 'X-Admin-Pin': adminPin }
+                });
+
+                if (response.ok) {
+                    document.getElementById('login-section').classList.add('hidden');
+                    document.getElementById('admin-section').classList.add('active');
+                    loadMessages();
+                } else {
+                    localStorage.removeItem('mamyAdminPin');
+                    adminPin = '';
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        async function sendMessage() {
+            const author = document.getElementById('author').value.trim();
+            const content = document.getElementById('content').value.trim();
+            const expires = document.getElementById('expires').value;
+            const statusEl = document.getElementById('form-status');
+
+            if (!author || !content) {
+                statusEl.className = 'status error';
+                statusEl.textContent = 'Remplis ton prénom et le message !';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Pin': adminPin
+                    },
+                    body: JSON.stringify({
+                        author,
+                        content,
+                        expiresInHours: parseInt(expires)
+                    })
+                });
+
+                if (response.ok) {
+                    statusEl.className = 'status success';
+                    statusEl.textContent = 'Message envoyé ! 🎉';
+                    document.getElementById('content').value = '';
+                    loadMessages();
+                    
+                    setTimeout(() => {
+                        statusEl.className = 'status';
+                    }, 3000);
+                } else {
+                    throw new Error('Erreur');
+                }
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = 'Erreur lors de l\'envoi';
+            }
+        }
+
+        async function loadMessages() {
+            const listEl = document.getElementById('messages-list');
+            
+            try {
+                const response = await fetch('/api/messages');
+                const messages = await response.json();
+
+                if (messages.length === 0) {
+                    listEl.innerHTML = '<div class="empty-state">Aucun message actif</div>';
+                    return;
+                }
+
+                listEl.innerHTML = messages.map(msg => `
+                    <div class="message-item">
+                        <div class="message-item-content">
+                            <div class="message-item-text">"${msg.content}"</div>
+                            <div class="message-item-meta">Par ${msg.author} • ${msg.timeAgo}</div>
+                        </div>
+                        <button class="btn-danger" onclick="deleteMessage(${msg.id})">🗑️</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                listEl.innerHTML = '<div class="empty-state">Erreur de chargement</div>';
+            }
+        }
+
+        async function deleteMessage(id) {
+            if (!confirm('Supprimer ce message ?')) return;
+
+            try {
+                await fetch(`/api/messages/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'X-Admin-Pin': adminPin }
+                });
+                loadMessages();
+            } catch (error) {
+                alert('Erreur lors de la suppression');
+            }
+        }
+
+        // Enter pour valider le PIN
+        document.getElementById('pin-input').addEventListener('keypress', e => {
+            if (e.key === 'Enter') login();
+        });
+    </script>
+</body>
+</html>

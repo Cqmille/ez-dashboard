@@ -1,0 +1,25 @@
+# .NET
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Secrets - NE PAS COMMIT
+credentials.json
+appsettings.Development.json
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db
