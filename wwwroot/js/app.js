@@ -12,9 +12,12 @@ const todayEventsEl = document.getElementById('today-events');
 const tomorrowEventsEl = document.getElementById('tomorrow-events');
 const messagesContainer = document.getElementById('messages-container');
 const refreshBtn = document.getElementById('refresh-btn');
+const themeBtn = document.getElementById('theme-btn');
 
 // ========== STATE ==========
 let refreshCooldown = 0;
+let manualTheme = null; // null = auto, 'dark' ou 'light'
+let devMode = false;
 
 // ========== FONCTIONS ==========
 
@@ -22,16 +25,26 @@ async function updateTime() {
     try {
         const response = await fetch('/api/time');
         const data = await response.json();
-        
+
         timeEl.textContent = data.time;
         momentEl.textContent = data.moment;
         dateEl.textContent = data.date;
-        
-        // Gestion du mode sombre
-        if (data.isDarkMode) {
+
+        // DevMode - afficher/cacher le bouton theme
+        devMode = data.devMode;
+        themeBtn.style.display = devMode ? 'flex' : 'none';
+
+        // Gestion du mode sombre (manuel ou auto)
+        const isDark = manualTheme !== null ? (manualTheme === 'dark') : data.isDarkMode;
+        if (isDark) {
             document.body.classList.add('dark-mode');
         } else {
             document.body.classList.remove('dark-mode');
+        }
+
+        // Mettre à jour l'icône du bouton theme
+        if (devMode) {
+            themeBtn.textContent = isDark ? '☀️' : '🌙';
         }
     } catch (error) {
         console.error('Erreur updateTime:', error);
@@ -166,5 +179,20 @@ function manualRefresh() {
 function updateRefreshButton() {
     if (refreshCooldown > 0) {
         refreshBtn.textContent = `⏳ ${refreshCooldown}s`;
+    }
+}
+
+// ========== THEME TOGGLE (DevMode) ==========
+
+function toggleTheme() {
+    const isDark = document.body.classList.contains('dark-mode');
+    manualTheme = isDark ? 'light' : 'dark';
+
+    if (manualTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        themeBtn.textContent = '☀️';
+    } else {
+        document.body.classList.remove('dark-mode');
+        themeBtn.textContent = '🌙';
     }
 }

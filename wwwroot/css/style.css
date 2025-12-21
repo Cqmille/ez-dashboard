@@ -223,11 +223,16 @@ html, body {
     color: inherit;
 }
 
-/* ========== REFRESH BUTTON ========== */
-#refresh-btn {
+/* ========== FIXED BUTTONS ========== */
+#fixed-buttons {
     position: fixed;
     bottom: 20px;
     right: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+#fixed-buttons button {
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -243,7 +248,7 @@ html, body {
     justify-content: center;
 }
 
-#refresh-btn:hover:not(:disabled) {
+#fixed-buttons button:hover:not(:disabled) {
     opacity: 1;
     transform: scale(1.1);
 }

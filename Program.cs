@@ -51,7 +51,8 @@ app.MapGet("/api/time", () =>
         date = now.ToString("dddd d MMMM yyyy", new System.Globalization.CultureInfo("fr-FR")),
         time = now.ToString("HH'h'mm"),
         moment,
-        isDarkMode
+        isDarkMode,
+        devMode = appSettings.DevMode
     });
 });
 
@@ -156,4 +157,5 @@ public class AppSettings
 {
     public string AdminPin { get; set; } = "1234";
     public string ICalUrl { get; set; } = "";
+    public bool DevMode { get; set; } = false;
 }
