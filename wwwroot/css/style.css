@@ -223,32 +223,35 @@ html, body {
     color: inherit;
 }
 
-/* ========== FOOTER (Refresh) ========== */
-#footer {
-    text-align: center;
-    padding: 10px;
-}
-
+/* ========== REFRESH BUTTON ========== */
 #refresh-btn {
-    background: transparent;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--card-bg);
     border: 1px solid rgba(128,128,128,0.3);
-    color: var(--text-color);
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-size: 0.9rem;
+    box-shadow: var(--card-shadow);
+    font-size: 1.5rem;
     cursor: pointer;
-    opacity: 0.5;
-    transition: opacity 0.2s, background 0.2s;
+    opacity: 0.6;
+    transition: opacity 0.2s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #refresh-btn:hover:not(:disabled) {
     opacity: 1;
-    background: rgba(128,128,128,0.1);
+    transform: scale(1.1);
 }
 
 #refresh-btn:disabled {
     cursor: not-allowed;
     opacity: 0.3;
+    font-size: 0.9rem;
 }
 
 /* ========== SCROLLBAR ========== */

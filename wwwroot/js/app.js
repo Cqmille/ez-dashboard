@@ -158,7 +158,7 @@ function manualRefresh() {
         if (refreshCooldown <= 0) {
             clearInterval(interval);
             refreshBtn.disabled = false;
-            refreshBtn.textContent = '🔄 Actualiser';
+            refreshBtn.textContent = '🔄';
         }
     }, 1000);
 }
