@@ -13,6 +13,7 @@ obj/
 # Secrets - NE PAS COMMIT
 credentials.json
 appsettings.Development.json
+secret.json
 
 # IDE
 .vs/
