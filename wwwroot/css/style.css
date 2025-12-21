@@ -263,17 +263,17 @@ body::after {
     }
 }
 
-/* ========== ÉVÉNEMENTS ========== */
+/* ========== ÉVÉNEMENTS (LAYOUT PAYSAGE KIOSK) ========== */
 #events-section {
     flex: 1;
     display: flex;
-    flex-direction: column;
-    gap: 20px;
-    overflow-y: auto;
-    padding-right: 10px;
+    flex-direction: row;  /* Aujourd'hui à gauche, Demain à droite */
+    gap: 24px;
+    overflow: hidden;  /* Pas de scroll - affichage fixe Kiosk */
 }
 
 .day-block {
+    flex: 1;  /* Partage 50/50 de l'espace */
     background: var(--glass-bg);
     backdrop-filter: blur(var(--glass-blur));
     -webkit-backdrop-filter: blur(var(--glass-blur));
@@ -289,6 +289,11 @@ body::after {
     /* Empêche la couleur de fond de baver sur la bordure */
     background-clip: padding-box;
     position: relative;
+
+    /* Flexbox interne pour scroll si beaucoup d'événements */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 /* === AUJOURD'HUI (Barre latérale épaisse) === */
@@ -312,9 +317,16 @@ body::after {
     gap: 12px;
 }
 
+/* === TITRES (flex-shrink pour rester visibles) === */
+.day-block h2 {
+    flex-shrink: 0;
+}
+
 /* === LISTE DES ÉVÉNEMENTS === */
 .day-block ul {
     list-style: none;
+    flex: 1;
+    overflow-y: auto;  /* Scroll interne si beaucoup d'événements */
 }
 
 .day-block li {
@@ -443,8 +455,18 @@ body::after {
     background-clip: padding-box;
 }
 
-/* ========== RESPONSIVE - TABLETTE ========== */
-@media (max-width: 768px) {
+/* ========== RESPONSIVE - PORTRAIT / PETITS ÉCRANS ========== */
+/* Repasse en mode colonne (vertical) pour portrait ou écrans étroits */
+@media (max-width: 900px), (orientation: portrait) {
+    #events-section {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .day-block {
+        flex: none;
+    }
+
     #app {
         padding: 16px;
         gap: 16px;
@@ -476,11 +498,9 @@ body::after {
     }
 }
 
-/* ========== RESPONSIVE - GRAND ÉCRAN ========== */
-@media (min-width: 1200px) {
+/* ========== RESPONSIVE - GRAND ÉCRAN PAYSAGE ========== */
+@media (min-width: 1200px) and (orientation: landscape) {
     #app {
-        max-width: 1000px;
-        margin: 0 auto;
         padding: 32px;
     }
 
