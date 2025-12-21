@@ -1,3 +1,9 @@
+/* ================================================
+   EZ-DASHBOARD - Dark Glass Kiosk (Landscape Mode)
+   Optimisé pour personne âgée (Alzheimer)
+   Layout: Aujourd'hui (gauche) | Demain (droite)
+   ================================================ */
+
 * {
     margin: 0;
     padding: 0;
@@ -5,35 +11,68 @@
 }
 
 :root {
-    /* Thème haute-contraste sombre (WCAG AAA - ratio 7:1 minimum) */
-    --bg-color: #0F172A;
-    --text-color: #FFFFFF;
-    --card-bg: #1E293B;
-    --card-border: #4B5563;
-    --card-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    /* === FOND (Très profond pour contraste) === */
+    --bg-gradient-start: #050508;
+    --bg-gradient-end: #0f0f1a;
 
-    /* Couleurs du bloc heure/date */
+    /* === GLASSMORPHISM (Dark Glass - 60% noir) === */
+    --glass-bg: rgba(0, 0, 0, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --glass-blur: 20px;
+    --glass-radius: 24px;
+
+    /* === TEXTE (Blanc pur - contraste maximum) === */
+    --text-primary: #FFFFFF;
+    --text-secondary: #CCCCCC;
+
+    /* === HEURE/DATE === */
     --time-color: #FFFFFF;
-    --moment-color: #7DD3FC;
-    --date-color: #FBBF24;
+    --moment-color: #00D4FF;
+    --date-color: #FFD700;
 
-    /* Couleurs des événements */
-    --accent-today: #22D3EE;
-    --accent-tomorrow: #22D3EE;
+    /* === ACCENTS COULEUR === */
+    --accent-today: #00FF88;
+    --accent-tomorrow: #00D4FF;
 
-    /* Messages */
-    --message-bg: #422006;
-    --message-border: #F59E0B;
+    /* === MESSAGES === */
+    --message-accent: #FFD700;
+    --message-bg: rgba(255, 215, 0, 0.1);
+
+    /* === DANGER === */
+    --danger-color: #FF4757;
+
+    /* === ANIMATIONS === */
+    --transition-smooth: 0.3s ease;
 }
 
+/* ========== FOND AVEC BLOBS COLORÉS ========== */
 html, body {
     height: 100%;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    color: var(--text-primary);
+    overflow: hidden;
+}
+
+/* Blobs colorés en arrière-plan */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(ellipse 600px 600px at 5% 20%, rgba(0, 255, 136, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse 500px 500px at 95% 80%, rgba(0, 212, 255, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse 400px 400px at 50% 50%, rgba(255, 215, 0, 0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
 }
 
 #app {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -44,51 +83,62 @@ html, body {
 /* ========== HEADER (Heure/Date) ========== */
 #header {
     text-align: center;
-    padding: 30px 20px;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 20px;
-    box-shadow: var(--card-shadow);
+    padding: 24px 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    background-clip: padding-box;
 }
 
 #time {
     font-size: 5rem;
-    font-weight: 700;
-    letter-spacing: 2px;
+    font-weight: 800;
+    letter-spacing: 4px;
     color: var(--time-color);
+    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+    line-height: 1;
 }
 
 #moment {
     font-size: 2rem;
-    margin-top: 10px;
+    margin-top: 12px;
     color: var(--moment-color);
-    font-weight: 600;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
 }
 
 #date {
-    font-size: 1.8rem;
-    margin-top: 15px;
+    font-size: 1.6rem;
+    margin-top: 8px;
     text-transform: capitalize;
     color: var(--date-color);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 /* ========== MESSAGES ========== */
 #messages-section {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .message-card {
     background: var(--message-bg);
-    border-left: 5px solid var(--message-border);
-    border-radius: 10px;
-    padding: 15px 20px;
-    animation: slideIn 0.3s ease-out;
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 2px solid var(--message-accent);
+    border-radius: 16px;
+    padding: 16px 20px;
+    animation: slideIn 0.4s ease-out;
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    background-clip: padding-box;
 }
 
 .message-body {
@@ -98,34 +148,38 @@ html, body {
 .message-content {
     font-size: 1.5rem;
     margin-bottom: 8px;
-    color: #FFFFFF;
+    color: var(--text-primary);
+    font-weight: 600;
+    line-height: 1.4;
 }
 
 .message-meta {
     font-size: 1rem;
-    color: #D1D5DB;
+    color: var(--message-accent);
+    font-weight: 500;
 }
 
 .delete-btn {
-    background: #DC2626;
+    background: var(--danger-color);
     color: white;
     border: none;
     border-radius: 50%;
     width: 50px;
     height: 50px;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: bold;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s, transform 0.2s;
+    transition: all var(--transition-smooth);
     flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
 }
 
 .delete-btn:hover {
-    background: #B91C1C;
     transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
 }
 
 .delete-btn:active {
@@ -135,7 +189,7 @@ html, body {
 @keyframes slideIn {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(-15px);
     }
     to {
         opacity: 1;
@@ -143,43 +197,67 @@ html, body {
     }
 }
 
-/* ========== ÉVÉNEMENTS ========== */
+/* ========== ÉVÉNEMENTS (LAYOUT PAYSAGE) ========== */
 #events-section {
     flex: 1;
     display: flex;
-    flex-direction: column;
-    gap: 15px;
-    overflow-y: auto;
+    flex-direction: row;  /* Aujourd'hui à gauche, Demain à droite */
+    gap: 24px;
+    overflow: hidden;  /* Pas de scroll - tout visible */
 }
 
 .day-block {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: var(--card-shadow);
+    flex: 1;  /* 50/50 */
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius);
+    padding: 24px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    background-clip: padding-box;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 }
 
+/* === AUJOURD'HUI (Barre verte à gauche) === */
+#today-block {
+    border-left: 8px solid var(--accent-today);
+}
+
+/* === DEMAIN (Barre bleue à gauche) === */
+#tomorrow-block {
+    border-left: 8px solid var(--accent-tomorrow);
+}
+
+/* === TITRES === */
 .day-block h2 {
-    font-size: 1.6rem;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--accent-today);
-    color: var(--accent-today);
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #FFFFFF;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
 }
 
+/* === LISTE DES ÉVÉNEMENTS === */
 .day-block ul {
     list-style: none;
+    flex: 1;
+    overflow-y: auto;
 }
 
 .day-block li {
-    font-size: 1.4rem;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--card-border);
+    font-size: 1.6rem;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     align-items: center;
-    gap: 15px;
-    color: #FFFFFF;
+    gap: 20px;
+    color: var(--text-primary);
 }
 
 .day-block li:last-child {
@@ -187,83 +265,141 @@ html, body {
 }
 
 .event-time {
-    font-weight: 700;
-    min-width: 80px;
+    font-weight: 800;
+    min-width: 90px;
+    font-size: 1.7rem;
+}
+
+#today-block .event-time {
     color: var(--accent-today);
+}
+
+#tomorrow-block .event-time {
+    color: var(--accent-tomorrow);
 }
 
 .event-title {
     flex: 1;
-    color: #FFFFFF;
+    color: var(--text-primary);
+    line-height: 1.3;
 }
 
 .no-events {
-    font-size: 1.3rem;
-    color: #9CA3AF;
+    font-size: 1.4rem;
+    color: var(--text-secondary);
     font-style: italic;
 }
 
-/* Événements passés */
+/* === ÉVÉNEMENTS PASSÉS === */
 .day-block li.past {
-    opacity: 0.5;
+    opacity: 0.4;
+}
+
+.day-block li.past .event-time,
+.day-block li.past .event-title {
+    color: var(--text-secondary);
     text-decoration: line-through;
 }
 
-.day-block li.past .event-time {
-    color: #9CA3AF;
-}
-
-.day-block li.past .event-title {
-    color: #9CA3AF;
-}
-
-/* ========== FIXED BUTTONS ========== */
+/* ========== BOUTONS FIXES ========== */
 #fixed-buttons {
     position: fixed;
     bottom: 20px;
     right: 20px;
     display: flex;
-    gap: 10px;
+    gap: 12px;
+    z-index: 100;
 }
 
 #fixed-buttons button {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    box-shadow: var(--card-shadow);
-    font-size: 1.5rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    font-size: 1.4rem;
     cursor: pointer;
-    color: #FFFFFF;
-    opacity: 0.7;
-    transition: opacity 0.2s, transform 0.2s;
+    color: var(--text-primary);
+    transition: all var(--transition-smooth);
     display: flex;
     align-items: center;
     justify-content: center;
+    background-clip: padding-box;
 }
 
 #fixed-buttons button:hover:not(:disabled) {
-    opacity: 1;
     transform: scale(1.1);
 }
 
 #refresh-btn:disabled {
     cursor: not-allowed;
     opacity: 0.3;
-    font-size: 0.9rem;
 }
 
-/* ========== SCROLLBAR ========== */
+/* ========== SCROLLBAR (si scroll interne) ========== */
 ::-webkit-scrollbar {
     width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: transparent;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--card-border);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* ========== RESPONSIVE - PORTRAIT (petits écrans) ========== */
+@media (max-width: 900px), (orientation: portrait) {
+    #events-section {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .day-block {
+        flex: none;
+    }
+
+    #time {
+        font-size: 4rem;
+    }
+
+    #moment {
+        font-size: 1.6rem;
+    }
+
+    #date {
+        font-size: 1.4rem;
+    }
+
+    .day-block h2 {
+        font-size: 1.6rem;
+    }
+
+    .day-block li {
+        font-size: 1.3rem;
+    }
+
+    .event-time {
+        font-size: 1.4rem;
+        min-width: 75px;
+    }
+}
+
+/* ========== ACCESSIBILITÉ ========== */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
