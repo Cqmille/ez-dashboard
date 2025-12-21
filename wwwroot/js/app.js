@@ -12,12 +12,9 @@ const todayEventsEl = document.getElementById('today-events');
 const tomorrowEventsEl = document.getElementById('tomorrow-events');
 const messagesContainer = document.getElementById('messages-container');
 const refreshBtn = document.getElementById('refresh-btn');
-const themeBtn = document.getElementById('theme-btn');
 
 // ========== STATE ==========
 let refreshCooldown = 0;
-let manualTheme = null; // null = auto, 'dark' ou 'light'
-let devMode = false;
 
 // ========== FONCTIONS ==========
 
@@ -29,23 +26,6 @@ async function updateTime() {
         timeEl.textContent = data.time;
         momentEl.textContent = data.moment;
         dateEl.textContent = data.date;
-
-        // DevMode - afficher/cacher le bouton theme
-        devMode = data.devMode;
-        themeBtn.style.display = devMode ? 'flex' : 'none';
-
-        // Gestion du mode sombre (manuel ou auto)
-        const isDark = manualTheme !== null ? (manualTheme === 'dark') : data.isDarkMode;
-        if (isDark) {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
-
-        // Mettre à jour l'icône du bouton theme
-        if (devMode) {
-            themeBtn.textContent = isDark ? '☀️' : '🌙';
-        }
     } catch (error) {
         console.error('Erreur updateTime:', error);
     }
@@ -55,7 +35,7 @@ async function updateEvents() {
     try {
         const response = await fetch('/api/events');
         const data = await response.json();
-        
+
         // Aujourd'hui
         if (data.today && data.today.length > 0) {
             todayEventsEl.innerHTML = data.today.map(evt => `
@@ -67,7 +47,7 @@ async function updateEvents() {
         } else {
             todayEventsEl.innerHTML = '<li class="no-events">Aucun événement</li>';
         }
-        
+
         // Demain
         if (data.tomorrow && data.tomorrow.length > 0) {
             tomorrowEventsEl.innerHTML = data.tomorrow.map(evt => `
@@ -179,20 +159,5 @@ function manualRefresh() {
 function updateRefreshButton() {
     if (refreshCooldown > 0) {
         refreshBtn.textContent = `⏳ ${refreshCooldown}s`;
-    }
-}
-
-// ========== THEME TOGGLE (DevMode) ==========
-
-function toggleTheme() {
-    const isDark = document.body.classList.contains('dark-mode');
-    manualTheme = isDark ? 'light' : 'dark';
-
-    if (manualTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-        themeBtn.textContent = '☀️';
-    } else {
-        document.body.classList.remove('dark-mode');
-        themeBtn.textContent = '🌙';
     }
 }

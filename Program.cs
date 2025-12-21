@@ -37,22 +37,18 @@ app.MapGet("/api/time", () =>
 {
     var now = DateTime.Now;
     var hour = now.Hour;
-    
+
     string moment;
     if (hour >= 5 && hour < 12) moment = "Matin";
     else if (hour >= 12 && hour < 18) moment = "Après-midi";
     else if (hour >= 18 && hour < 22) moment = "Soir";
     else moment = "Nuit";
 
-    var isDarkMode = hour >= 20 || hour < 7;
-
     return Results.Ok(new
     {
         date = now.ToString("dddd d MMMM yyyy", new System.Globalization.CultureInfo("fr-FR")),
         time = now.ToString("HH'h'mm"),
-        moment,
-        isDarkMode,
-        devMode = appSettings.DevMode
+        moment
     });
 });
 
@@ -157,5 +153,4 @@ public class AppSettings
 {
     public string AdminPin { get; set; } = "1234";
     public string ICalUrl { get; set; } = "";
-    public bool DevMode { get; set; } = false;
 }
