@@ -11,20 +11,20 @@
 }
 
 :root {
-    /* === FOND === */
-    --bg-gradient-start: #0a0a0f;
-    --bg-gradient-end: #1a1a2e;
+    /* === FOND (Plus profond pour contraste) === */
+    --bg-gradient-start: #050508;
+    --bg-gradient-end: #0f0f1a;
 
-    /* === GLASSMORPHISM === */
-    --glass-bg: rgba(255, 255, 255, 0.07);
-    --glass-bg-hover: rgba(255, 255, 255, 0.1);
+    /* === GLASSMORPHISM (Dark Glass - 60% noir) === */
+    --glass-bg: rgba(0, 0, 0, 0.6);
+    --glass-bg-hover: rgba(0, 0, 0, 0.7);
     --glass-border: rgba(255, 255, 255, 0.15);
-    --glass-blur: 16px;
+    --glass-blur: 20px;
     --glass-radius: 24px;
 
-    /* === TEXTE (HAUTE CONTRASTE) === */
+    /* === TEXTE (Blanc pur - contraste maximum) === */
     --text-primary: #FFFFFF;
-    --text-secondary: #E0E0E0;
+    --text-secondary: #CCCCCC;
 
     /* === HEURE/DATE === */
     --time-color: #FFFFFF;
@@ -270,65 +270,46 @@ body::after {
     flex-direction: column;
     gap: 20px;
     overflow-y: auto;
-    padding-right: 8px;
+    padding-right: 10px;
 }
 
 .day-block {
-    background: linear-gradient(135deg, rgba(20, 25, 45, 0.95) 0%, rgba(15, 20, 35, 0.98) 100%);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+
+    /* Bordure fine et nette */
     border: 1px solid var(--glass-border);
     border-radius: var(--glass-radius);
     padding: 24px;
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+    /* Ombre portée noire et profonde (pas de glow coloré) */
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+
+    /* Empêche la couleur de fond de baver sur la bordure */
+    background-clip: padding-box;
+    position: relative;
 }
 
-/* === AUJOURD'HUI === */
+/* === AUJOURD'HUI (Barre latérale épaisse) === */
 #today-block {
-    border-left: 4px solid var(--accent-today);
-    box-shadow:
-        0 0 25px var(--accent-today-glow),
-        0 8px 32px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-left: 8px solid var(--accent-today);
 }
 
-#today-block h2 {
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid var(--accent-today);
-    color: var(--accent-today);
-    text-shadow: 0 0 15px var(--accent-today-glow);
-    font-weight: 700;
-}
-
-#today-block .event-time {
-    color: var(--accent-today);
-    text-shadow: 0 0 10px var(--accent-today-glow);
-}
-
-/* === DEMAIN === */
+/* === DEMAIN (Barre latérale épaisse) === */
 #tomorrow-block {
-    border-left: 4px solid var(--accent-tomorrow);
-    box-shadow:
-        0 0 25px var(--accent-tomorrow-glow),
-        0 8px 32px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-left: 8px solid var(--accent-tomorrow);
 }
 
-#tomorrow-block h2 {
-    font-size: 1.8rem;
+/* === TITRES ULTRA-LISIBLES === */
+.day-block h2 {
+    font-size: 2rem;
     margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid var(--accent-tomorrow);
-    color: var(--accent-tomorrow);
-    text-shadow: 0 0 15px var(--accent-tomorrow-glow);
-    font-weight: 700;
-}
-
-#tomorrow-block .event-time {
-    color: var(--accent-tomorrow);
-    text-shadow: 0 0 10px var(--accent-tomorrow-glow);
+    color: #FFFFFF;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 /* === LISTE DES ÉVÉNEMENTS === */
@@ -337,14 +318,13 @@ body::after {
 }
 
 .day-block li {
-    font-size: 1.5rem;
-    padding: 16px 0;
+    font-size: 1.7rem;
+    padding: 18px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 25px;
     color: var(--text-primary);
-    font-weight: 500;
 }
 
 .day-block li:last-child {
@@ -354,8 +334,17 @@ body::after {
 
 .event-time {
     font-weight: 800;
-    min-width: 90px;
-    font-size: 1.6rem;
+    min-width: 100px;
+    font-size: 1.8rem;
+}
+
+/* Couleurs spécifiques pour les heures */
+#today-block .event-time {
+    color: var(--accent-today);
+}
+
+#tomorrow-block .event-time {
+    color: var(--accent-tomorrow);
 }
 
 .event-title {
