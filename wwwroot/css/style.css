@@ -84,6 +84,13 @@ html, body {
     border-radius: 10px;
     padding: 15px 20px;
     animation: slideIn 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.message-body {
+    flex: 1;
 }
 
 .message-content {
@@ -94,6 +101,32 @@ html, body {
 .message-meta {
     font-size: 1rem;
     opacity: 0.7;
+}
+
+.delete-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+    flex-shrink: 0;
+}
+
+.delete-btn:hover {
+    background: #c0392b;
+    transform: scale(1.1);
+}
+
+.delete-btn:active {
+    transform: scale(0.95);
 }
 
 @keyframes slideIn {

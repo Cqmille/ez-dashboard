@@ -71,20 +71,48 @@ async function updateMessages() {
     try {
         const response = await fetch('/api/messages');
         const messages = await response.json();
-        
+
         if (messages.length === 0) {
             messagesContainer.innerHTML = '';
             return;
         }
-        
+
         messagesContainer.innerHTML = messages.map(msg => `
-            <div class="message-card">
-                <div class="message-content">💬 "${msg.content}"</div>
-                <div class="message-meta">— ${msg.author}, ${msg.timeAgo}</div>
+            <div class="message-card" data-id="${msg.id}">
+                <div class="message-body">
+                    <div class="message-content">💬 "${msg.content}"</div>
+                    <div class="message-meta">— ${msg.author}, ${msg.timeAgo}</div>
+                </div>
+                <button class="delete-btn" onclick="deleteMessage(${msg.id})" title="Supprimer">✕</button>
             </div>
         `).join('');
     } catch (error) {
         console.error('Erreur updateMessages:', error);
+    }
+}
+
+async function deleteMessage(id) {
+    const pin = prompt('Entrez le code PIN admin pour supprimer ce message :');
+    if (!pin) return;
+
+    try {
+        const response = await fetch(`/api/messages/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-Admin-Pin': pin
+            }
+        });
+
+        if (response.ok) {
+            updateMessages();
+        } else if (response.status === 401) {
+            alert('Code PIN incorrect !');
+        } else {
+            alert('Erreur lors de la suppression');
+        }
+    } catch (error) {
+        console.error('Erreur deleteMessage:', error);
+        alert('Erreur de connexion');
     }
 }
 
