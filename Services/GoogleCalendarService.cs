@@ -24,8 +24,7 @@ public class GoogleCalendarService
             return new
             {
                 today = new[] { new { time = "⚠️", title = "URL iCal non configurée" } },
-                tomorrow = Array.Empty<object>(),
-                upcoming = Array.Empty<object>()
+                tomorrow = Array.Empty<object>()
             };
         }
 
@@ -59,19 +58,7 @@ public class GoogleCalendarService
                 })
                 .ToList();
 
-            var upcomingEvents = events
-                .Where(e => e.Start.Date > tomorrow)
-                .OrderBy(e => e.Start)
-                .Take(2)
-                .Select(e => new
-                {
-                    date = e.Start.ToString("ddd d MMM", new System.Globalization.CultureInfo("fr-FR")),
-                    time = e.IsAllDay ? "Journée" : e.Start.ToString("HH'h'mm"),
-                    title = e.Summary
-                })
-                .ToList();
-
-            return new { today = todayEvents, tomorrow = tomorrowEvents, upcoming = upcomingEvents };
+            return new { today = todayEvents, tomorrow = tomorrowEvents };
         }
         catch (Exception ex)
         {
@@ -79,8 +66,7 @@ public class GoogleCalendarService
             return new
             {
                 today = new[] { new { time = "⚠️", title = "Erreur de chargement" } },
-                tomorrow = Array.Empty<object>(),
-                upcoming = Array.Empty<object>()
+                tomorrow = Array.Empty<object>()
             };
         }
     }

@@ -10,8 +10,6 @@ const momentEl = document.getElementById('moment');
 const dateEl = document.getElementById('date');
 const todayEventsEl = document.getElementById('today-events');
 const tomorrowEventsEl = document.getElementById('tomorrow-events');
-const upcomingEventsEl = document.getElementById('upcoming-events');
-const upcomingSection = document.getElementById('upcoming-section');
 const messagesContainer = document.getElementById('messages-container');
 const refreshBtn = document.getElementById('refresh-btn');
 
@@ -67,20 +65,6 @@ async function updateEvents() {
             `).join('');
         } else {
             tomorrowEventsEl.innerHTML = '<li class="no-events">Aucun événement</li>';
-        }
-
-        // À venir (max 2)
-        if (data.upcoming && data.upcoming.length > 0) {
-            upcomingSection.style.display = 'block';
-            upcomingEventsEl.innerHTML = data.upcoming.map(evt => `
-                <li>
-                    <span class="event-date">${evt.date}</span>
-                    <span class="event-time">${evt.time}</span>
-                    <span class="event-title">${evt.title}</span>
-                </li>
-            `).join('');
-        } else {
-            upcomingSection.style.display = 'none';
         }
     } catch (error) {
         console.error('Erreur updateEvents:', error);
