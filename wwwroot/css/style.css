@@ -595,28 +595,6 @@ body::after {
     border-radius: 4px;
 }
 
-.ui-row-inline {
-    display: flex;
-    gap: 16px;
-}
-
-.ui-color-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-}
-
-.ui-color-item .ui-label {
-    min-width: auto;
-    font-size: 0.8rem;
-}
-
-.ui-color-item .ui-value {
-    min-width: auto;
-    font-size: 0.7rem;
-}
-
 /* Settings button active state */
 #settings-btn.active {
     background: var(--accent-today) !important;
