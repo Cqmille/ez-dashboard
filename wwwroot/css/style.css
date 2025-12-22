@@ -448,9 +448,10 @@ body::after {
     position: fixed;
     bottom: 100px;
     right: 24px;
-    width: 320px;
+    width: 380px;
     max-height: calc(100vh - 150px);
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 20px;
     z-index: 150;
     background: rgba(0, 0, 0, 0.85);
@@ -598,6 +599,14 @@ body::after {
 /* ========== RESPONSIVE - PORTRAIT / PETITS ÉCRANS ========== */
 /* Repasse en mode colonne (vertical) pour portrait ou écrans étroits */
 @media (max-width: 900px), (orientation: portrait) {
+    :root {
+        --time-size: 4.5rem;
+        --moment-size: 2rem;
+        --date-size: 1.7rem;
+        --title-font-size: 1.5rem;
+        --event-font-size: 1.3rem;
+    }
+
     #events-section {
         flex-direction: column;
         overflow-y: auto;
@@ -612,26 +621,6 @@ body::after {
         gap: 16px;
     }
 
-    #time {
-        font-size: 4.5rem;
-    }
-
-    #moment {
-        font-size: 2rem;
-    }
-
-    #date {
-        font-size: 1.7rem;
-    }
-
-    .day-block h2 {
-        font-size: 1.5rem;
-    }
-
-    .day-block li {
-        font-size: 1.3rem;
-    }
-
     .event-time {
         font-size: 1.4rem;
         min-width: 75px;
@@ -640,20 +629,14 @@ body::after {
 
 /* ========== RESPONSIVE - GRAND ÉCRAN PAYSAGE ========== */
 @media (min-width: 1200px) and (orientation: landscape) {
+    :root {
+        --time-size: 7rem;
+        --moment-size: 2.8rem;
+        --date-size: 2.3rem;
+    }
+
     #app {
         padding: 32px;
-    }
-
-    #time {
-        font-size: 7rem;
-    }
-
-    #moment {
-        font-size: 2.8rem;
-    }
-
-    #date {
-        font-size: 2.3rem;
     }
 }
 
