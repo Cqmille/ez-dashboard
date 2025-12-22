@@ -94,7 +94,7 @@ app.MapGet("/api/time", () =>
     return Results.Ok(new
     {
         date = now.ToString("dddd d MMMM yyyy", new System.Globalization.CultureInfo("fr-FR")),
-        time = now.ToString("HH'h'mm"),
+        time = now.ToString("HH:mm"),
         moment
     });
 });
