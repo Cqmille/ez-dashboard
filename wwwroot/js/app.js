@@ -207,9 +207,21 @@ function updateCSSVar(control, value) {
         // Mise à jour spéciale pour l'opacité du verre
         root.style.setProperty('--glass-bg', `rgba(0, 0, 0, ${value})`);
         root.style.setProperty('--glass-bg-hover', `rgba(0, 0, 0, ${parseFloat(value) + 0.1})`);
+    } else if (control.id === 'time-color') {
+        // Mise à jour couleur + glow pour l'heure
+        root.style.setProperty('--time-color', value);
+        root.style.setProperty('--time-glow', hexToRgba(value, 0.4));
     } else {
         root.style.setProperty(control.cssVar, value + control.unit);
     }
+}
+
+// Convertir hex en rgba pour les glows
+function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 // Fonction pour mettre à jour le label de valeur
