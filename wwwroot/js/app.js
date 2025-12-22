@@ -168,6 +168,8 @@ function updateRefreshButton() {
 
 const settingsBtn = document.getElementById('settings-btn');
 const uiMenu = document.getElementById('ui-menu');
+const resetBtn = document.getElementById('reset-ui-btn');
+const UI_STORAGE_KEY = 'ez-dashboard-ui-settings';
 
 // Toggle menu visibility
 settingsBtn.addEventListener('click', () => {
@@ -176,27 +178,27 @@ settingsBtn.addEventListener('click', () => {
     settingsBtn.classList.toggle('active', !isVisible);
 });
 
-// Configuration des contrôles UI
+// Configuration des contrôles UI avec valeurs par défaut
 const uiControls = [
     // Heure
-    { id: 'time-size', cssVar: '--time-size', unit: 'rem', type: 'range' },
-    { id: 'time-color', cssVar: '--time-color', unit: '', type: 'color' },
+    { id: 'time-size', cssVar: '--time-size', unit: 'rem', type: 'range', default: '6' },
+    { id: 'time-color', cssVar: '--time-color', unit: '', type: 'color', default: '#FFFFFF' },
     // Moment
-    { id: 'moment-size', cssVar: '--moment-size', unit: 'rem', type: 'range' },
-    { id: 'moment-color', cssVar: '--moment-color', unit: '', type: 'color' },
+    { id: 'moment-size', cssVar: '--moment-size', unit: 'rem', type: 'range', default: '2.4' },
+    { id: 'moment-color', cssVar: '--moment-color', unit: '', type: 'color', default: '#00D4FF' },
     // Date
-    { id: 'date-size', cssVar: '--date-size', unit: 'rem', type: 'range' },
-    { id: 'date-color', cssVar: '--date-color', unit: '', type: 'color' },
+    { id: 'date-size', cssVar: '--date-size', unit: 'rem', type: 'range', default: '2' },
+    { id: 'date-color', cssVar: '--date-color', unit: '', type: 'color', default: '#FFD700' },
     // Événements
-    { id: 'event-size', cssVar: '--event-font-size', unit: 'rem', type: 'range' },
+    { id: 'event-size', cssVar: '--event-font-size', unit: 'rem', type: 'range', default: '1.7' },
     // Verre
-    { id: 'glass-opacity', cssVar: '--glass-bg-opacity', unit: '', type: 'range', special: 'opacity' },
-    { id: 'glass-blur', cssVar: '--glass-blur', unit: 'px', type: 'range' },
+    { id: 'glass-opacity', cssVar: '--glass-bg-opacity', unit: '', type: 'range', special: 'opacity', default: '0.6' },
+    { id: 'glass-blur', cssVar: '--glass-blur', unit: 'px', type: 'range', default: '20' },
     // Accents
-    { id: 'accent-today', cssVar: '--accent-today', unit: '', type: 'color' },
-    { id: 'accent-tomorrow', cssVar: '--accent-tomorrow', unit: '', type: 'color' },
+    { id: 'accent-today', cssVar: '--accent-today', unit: '', type: 'color', default: '#00FF88' },
+    { id: 'accent-tomorrow', cssVar: '--accent-tomorrow', unit: '', type: 'color', default: '#00D4FF' },
     // Titres
-    { id: 'title-size', cssVar: '--title-font-size', unit: 'rem', type: 'range' }
+    { id: 'title-size', cssVar: '--title-font-size', unit: 'rem', type: 'range', default: '2' }
 ];
 
 // Fonction de mise à jour en temps réel
@@ -236,6 +238,53 @@ function updateValueLabel(control, value) {
     }
 }
 
+// Sauvegarder les réglages dans localStorage
+function saveUISettings() {
+    const settings = {};
+    uiControls.forEach(control => {
+        const inputEl = document.getElementById(`ctrl-${control.id}`);
+        if (inputEl) {
+            settings[control.id] = inputEl.value;
+        }
+    });
+    localStorage.setItem(UI_STORAGE_KEY, JSON.stringify(settings));
+}
+
+// Charger les réglages depuis localStorage
+function loadUISettings() {
+    const saved = localStorage.getItem(UI_STORAGE_KEY);
+    if (!saved) return;
+
+    try {
+        const settings = JSON.parse(saved);
+        uiControls.forEach(control => {
+            if (settings[control.id] !== undefined) {
+                const inputEl = document.getElementById(`ctrl-${control.id}`);
+                if (inputEl) {
+                    inputEl.value = settings[control.id];
+                    updateCSSVar(control, settings[control.id]);
+                    updateValueLabel(control, settings[control.id]);
+                }
+            }
+        });
+    } catch (e) {
+        console.error('Erreur chargement réglages UI:', e);
+    }
+}
+
+// Réinitialiser tous les réglages
+function resetUISettings() {
+    uiControls.forEach(control => {
+        const inputEl = document.getElementById(`ctrl-${control.id}`);
+        if (inputEl) {
+            inputEl.value = control.default;
+            updateCSSVar(control, control.default);
+            updateValueLabel(control, control.default);
+        }
+    });
+    localStorage.removeItem(UI_STORAGE_KEY);
+}
+
 // Initialiser tous les contrôles
 uiControls.forEach(control => {
     const inputEl = document.getElementById(`ctrl-${control.id}`);
@@ -246,6 +295,7 @@ uiControls.forEach(control => {
         const value = e.target.value;
         updateCSSVar(control, value);
         updateValueLabel(control, value);
+        saveUISettings();
     });
 
     // Pour les color pickers, aussi écouter 'change' pour compatibilité
@@ -254,6 +304,13 @@ uiControls.forEach(control => {
             const value = e.target.value;
             updateCSSVar(control, value);
             updateValueLabel(control, value);
+            saveUISettings();
         });
     }
 });
+
+// Bouton reset
+resetBtn.addEventListener('click', resetUISettings);
+
+// Charger les réglages sauvegardés au démarrage
+loadUISettings();

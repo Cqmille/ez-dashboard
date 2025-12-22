@@ -458,13 +458,40 @@ body::after {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-#ui-menu h3 {
-    color: #FFFFFF;
-    font-size: 1.2rem;
+.ui-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 16px;
     padding-bottom: 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#ui-menu h3 {
+    color: #FFFFFF;
+    font-size: 1.2rem;
     font-weight: 700;
+    margin: 0;
+}
+
+#reset-ui-btn {
+    background: rgba(255, 71, 87, 0.2);
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#reset-ui-btn:hover {
+    background: var(--danger-color);
+    color: #FFFFFF;
 }
 
 .ui-group {
