@@ -96,6 +96,16 @@
                 <input type="range" id="ctrl-event-size" min="1" max="3" step="0.1" value="1.7">
                 <span class="ui-value" id="val-event-size">1.7rem</span>
             </div>
+            <div class="ui-row">
+                <span class="ui-label">Taille heure:</span>
+                <input type="range" id="ctrl-event-time-size" min="1" max="3" step="0.1" value="1.8">
+                <span class="ui-value" id="val-event-time-size">1.8rem</span>
+            </div>
+            <div class="ui-row">
+                <span class="ui-label">Taille titre:</span>
+                <input type="range" id="ctrl-title-size" min="1" max="4" step="0.2" value="2">
+                <span class="ui-value" id="val-title-size">2rem</span>
+            </div>
         </div>
 
         <div class="ui-group">
@@ -114,24 +124,17 @@
 
         <div class="ui-group">
             <label>Couleurs d'accent</label>
-            <div class="ui-row">
-                <span class="ui-label">Aujourd'hui:</span>
-                <input type="color" id="ctrl-accent-today" value="#00FF88">
-                <span class="ui-value" id="val-accent-today">#00FF88</span>
-            </div>
-            <div class="ui-row">
-                <span class="ui-label">Demain:</span>
-                <input type="color" id="ctrl-accent-tomorrow" value="#00D4FF">
-                <span class="ui-value" id="val-accent-tomorrow">#00D4FF</span>
-            </div>
-        </div>
-
-        <div class="ui-group">
-            <label>Titres blocs</label>
-            <div class="ui-row">
-                <span class="ui-label">Taille:</span>
-                <input type="range" id="ctrl-title-size" min="1" max="4" step="0.2" value="2">
-                <span class="ui-value" id="val-title-size">2rem</span>
+            <div class="ui-row-inline">
+                <div class="ui-color-item">
+                    <span class="ui-label">Aujourd'hui:</span>
+                    <input type="color" id="ctrl-accent-today" value="#00FF88">
+                    <span class="ui-value" id="val-accent-today">#00FF88</span>
+                </div>
+                <div class="ui-color-item">
+                    <span class="ui-label">Demain:</span>
+                    <input type="color" id="ctrl-accent-tomorrow" value="#00D4FF">
+                    <span class="ui-value" id="val-accent-tomorrow">#00D4FF</span>
+                </div>
             </div>
         </div>
     </nav>

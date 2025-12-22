@@ -191,14 +191,14 @@ const uiControls = [
     { id: 'date-color', cssVar: '--date-color', unit: '', type: 'color', default: '#FFD700' },
     // Événements
     { id: 'event-size', cssVar: '--event-font-size', unit: 'rem', type: 'range', default: '1.7' },
+    { id: 'event-time-size', cssVar: '--event-time-size', unit: 'rem', type: 'range', default: '1.8' },
+    { id: 'title-size', cssVar: '--title-font-size', unit: 'rem', type: 'range', default: '2' },
     // Verre
     { id: 'glass-opacity', cssVar: '--glass-bg-opacity', unit: '', type: 'range', special: 'opacity', default: '0.6' },
     { id: 'glass-blur', cssVar: '--glass-blur', unit: 'px', type: 'range', default: '20' },
     // Accents
     { id: 'accent-today', cssVar: '--accent-today', unit: '', type: 'color', default: '#00FF88' },
-    { id: 'accent-tomorrow', cssVar: '--accent-tomorrow', unit: '', type: 'color', default: '#00D4FF' },
-    // Titres
-    { id: 'title-size', cssVar: '--title-font-size', unit: 'rem', type: 'range', default: '2' }
+    { id: 'accent-tomorrow', cssVar: '--accent-tomorrow', unit: '', type: 'color', default: '#00D4FF' }
 ];
 
 // Fonction de mise à jour en temps réel

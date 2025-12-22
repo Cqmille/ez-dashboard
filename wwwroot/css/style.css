@@ -37,6 +37,7 @@
 
     /* === TAILLES AJUSTABLES === */
     --event-font-size: 1.7rem;
+    --event-time-size: 1.8rem;
     --title-font-size: 2rem;
     --glass-bg-opacity: 0.6;
 
@@ -357,7 +358,7 @@ body::after {
 .event-time {
     font-weight: 800;
     min-width: 100px;
-    font-size: 1.8rem;
+    font-size: var(--event-time-size);
 }
 
 /* Couleurs spécifiques pour les heures */
@@ -592,6 +593,28 @@ body::after {
     background: rgba(0, 255, 136, 0.1);
     padding: 3px 6px;
     border-radius: 4px;
+}
+
+.ui-row-inline {
+    display: flex;
+    gap: 16px;
+}
+
+.ui-color-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.ui-color-item .ui-label {
+    min-width: auto;
+    font-size: 0.8rem;
+}
+
+.ui-color-item .ui-value {
+    min-width: auto;
+    font-size: 0.7rem;
 }
 
 /* Settings button active state */
