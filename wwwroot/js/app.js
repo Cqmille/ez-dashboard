@@ -163,3 +163,85 @@ function updateRefreshButton() {
         refreshBtn.textContent = `⏳ ${refreshCooldown}s`;
     }
 }
+
+// ========== UI CUSTOMIZER ==========
+
+const settingsBtn = document.getElementById('settings-btn');
+const uiMenu = document.getElementById('ui-menu');
+
+// Toggle menu visibility
+settingsBtn.addEventListener('click', () => {
+    const isVisible = uiMenu.style.display !== 'none';
+    uiMenu.style.display = isVisible ? 'none' : 'block';
+    settingsBtn.classList.toggle('active', !isVisible);
+});
+
+// Configuration des contrôles UI
+const uiControls = [
+    // Heure
+    { id: 'time-size', cssVar: '--time-size', unit: 'rem', type: 'range' },
+    { id: 'time-color', cssVar: '--time-color', unit: '', type: 'color' },
+    // Moment
+    { id: 'moment-size', cssVar: '--moment-size', unit: 'rem', type: 'range' },
+    { id: 'moment-color', cssVar: '--moment-color', unit: '', type: 'color' },
+    // Date
+    { id: 'date-size', cssVar: '--date-size', unit: 'rem', type: 'range' },
+    { id: 'date-color', cssVar: '--date-color', unit: '', type: 'color' },
+    // Événements
+    { id: 'event-size', cssVar: '--event-font-size', unit: 'rem', type: 'range' },
+    // Verre
+    { id: 'glass-opacity', cssVar: '--glass-bg-opacity', unit: '', type: 'range', special: 'opacity' },
+    { id: 'glass-blur', cssVar: '--glass-blur', unit: 'px', type: 'range' },
+    // Accents
+    { id: 'accent-today', cssVar: '--accent-today', unit: '', type: 'color' },
+    { id: 'accent-tomorrow', cssVar: '--accent-tomorrow', unit: '', type: 'color' },
+    // Titres
+    { id: 'title-size', cssVar: '--title-font-size', unit: 'rem', type: 'range' }
+];
+
+// Fonction de mise à jour en temps réel
+function updateCSSVar(control, value) {
+    const root = document.documentElement;
+
+    if (control.special === 'opacity') {
+        // Mise à jour spéciale pour l'opacité du verre
+        root.style.setProperty('--glass-bg', `rgba(0, 0, 0, ${value})`);
+        root.style.setProperty('--glass-bg-hover', `rgba(0, 0, 0, ${parseFloat(value) + 0.1})`);
+    } else {
+        root.style.setProperty(control.cssVar, value + control.unit);
+    }
+}
+
+// Fonction pour mettre à jour le label de valeur
+function updateValueLabel(control, value) {
+    const valueEl = document.getElementById(`val-${control.id}`);
+    if (valueEl) {
+        if (control.type === 'color') {
+            valueEl.textContent = value.toUpperCase();
+        } else {
+            valueEl.textContent = value + control.unit;
+        }
+    }
+}
+
+// Initialiser tous les contrôles
+uiControls.forEach(control => {
+    const inputEl = document.getElementById(`ctrl-${control.id}`);
+    if (!inputEl) return;
+
+    // Écouter les changements
+    inputEl.addEventListener('input', (e) => {
+        const value = e.target.value;
+        updateCSSVar(control, value);
+        updateValueLabel(control, value);
+    });
+
+    // Pour les color pickers, aussi écouter 'change' pour compatibilité
+    if (control.type === 'color') {
+        inputEl.addEventListener('change', (e) => {
+            const value = e.target.value;
+            updateCSSVar(control, value);
+            updateValueLabel(control, value);
+        });
+    }
+});

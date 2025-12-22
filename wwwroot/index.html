@@ -36,8 +36,102 @@
 
     <!-- Bouton refresh fixe -->
     <div id="fixed-buttons">
+        <button id="settings-btn">⚙️</button>
         <button id="refresh-btn" onclick="manualRefresh()">🔄</button>
     </div>
+
+    <!-- Panneau de réglages UI -->
+    <nav id="ui-menu" class="glass-card" style="display: none;">
+        <h3>🎨 Réglages UI</h3>
+
+        <div class="ui-group">
+            <label>Heure</label>
+            <div class="ui-row">
+                <span class="ui-label">Taille:</span>
+                <input type="range" id="ctrl-time-size" min="3" max="10" step="0.5" value="6">
+                <span class="ui-value" id="val-time-size">6rem</span>
+            </div>
+            <div class="ui-row">
+                <span class="ui-label">Couleur:</span>
+                <input type="color" id="ctrl-time-color" value="#FFFFFF">
+                <span class="ui-value" id="val-time-color">#FFFFFF</span>
+            </div>
+        </div>
+
+        <div class="ui-group">
+            <label>Moment (Matin/Après-midi...)</label>
+            <div class="ui-row">
+                <span class="ui-label">Taille:</span>
+                <input type="range" id="ctrl-moment-size" min="1" max="5" step="0.2" value="2.4">
+                <span class="ui-value" id="val-moment-size">2.4rem</span>
+            </div>
+            <div class="ui-row">
+                <span class="ui-label">Couleur:</span>
+                <input type="color" id="ctrl-moment-color" value="#00D4FF">
+                <span class="ui-value" id="val-moment-color">#00D4FF</span>
+            </div>
+        </div>
+
+        <div class="ui-group">
+            <label>Date</label>
+            <div class="ui-row">
+                <span class="ui-label">Taille:</span>
+                <input type="range" id="ctrl-date-size" min="1" max="4" step="0.2" value="2">
+                <span class="ui-value" id="val-date-size">2rem</span>
+            </div>
+            <div class="ui-row">
+                <span class="ui-label">Couleur:</span>
+                <input type="color" id="ctrl-date-color" value="#FFD700">
+                <span class="ui-value" id="val-date-color">#FFD700</span>
+            </div>
+        </div>
+
+        <div class="ui-group">
+            <label>Événements</label>
+            <div class="ui-row">
+                <span class="ui-label">Taille texte:</span>
+                <input type="range" id="ctrl-event-size" min="1" max="3" step="0.1" value="1.7">
+                <span class="ui-value" id="val-event-size">1.7rem</span>
+            </div>
+        </div>
+
+        <div class="ui-group">
+            <label>Effet Verre</label>
+            <div class="ui-row">
+                <span class="ui-label">Opacité:</span>
+                <input type="range" id="ctrl-glass-opacity" min="0" max="1" step="0.05" value="0.6">
+                <span class="ui-value" id="val-glass-opacity">0.6</span>
+            </div>
+            <div class="ui-row">
+                <span class="ui-label">Flou:</span>
+                <input type="range" id="ctrl-glass-blur" min="0" max="50" step="2" value="20">
+                <span class="ui-value" id="val-glass-blur">20px</span>
+            </div>
+        </div>
+
+        <div class="ui-group">
+            <label>Couleurs d'accent</label>
+            <div class="ui-row">
+                <span class="ui-label">Aujourd'hui:</span>
+                <input type="color" id="ctrl-accent-today" value="#00FF88">
+                <span class="ui-value" id="val-accent-today">#00FF88</span>
+            </div>
+            <div class="ui-row">
+                <span class="ui-label">Demain:</span>
+                <input type="color" id="ctrl-accent-tomorrow" value="#00D4FF">
+                <span class="ui-value" id="val-accent-tomorrow">#00D4FF</span>
+            </div>
+        </div>
+
+        <div class="ui-group">
+            <label>Titres blocs</label>
+            <div class="ui-row">
+                <span class="ui-label">Taille:</span>
+                <input type="range" id="ctrl-title-size" min="1" max="4" step="0.2" value="2">
+                <span class="ui-value" id="val-title-size">2rem</span>
+            </div>
+        </div>
+    </nav>
 
     <script src="js/app.js"></script>
 </body>
