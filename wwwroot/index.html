@@ -44,7 +44,30 @@
     <nav id="ui-menu" class="glass-card" style="display: none;">
         <div class="ui-header">
             <h3>🎨 Réglages UI</h3>
-            <button id="reset-ui-btn" title="Réinitialiser">↺</button>
+            <div class="ui-header-buttons">
+                <button id="random-ui-btn" title="Aléatoire">🎲</button>
+                <button id="reset-ui-btn" title="Réinitialiser">↺</button>
+            </div>
+        </div>
+
+        <div class="ui-group">
+            <label>Général</label>
+            <div class="ui-row">
+                <span class="ui-label">Police:</span>
+                <select id="ctrl-font-family">
+                    <option value="'Segoe UI', system-ui, sans-serif">Segoe UI</option>
+                    <option value="'Arial', sans-serif">Arial</option>
+                    <option value="'Roboto', sans-serif">Roboto</option>
+                    <option value="'Open Sans', sans-serif">Open Sans</option>
+                    <option value="'Lato', sans-serif">Lato</option>
+                    <option value="'Montserrat', sans-serif">Montserrat</option>
+                    <option value="'Poppins', sans-serif">Poppins</option>
+                    <option value="'Inter', sans-serif">Inter</option>
+                    <option value="'Georgia', serif">Georgia</option>
+                    <option value="'Times New Roman', serif">Times New Roman</option>
+                </select>
+                <span class="ui-value" id="val-font-family">Segoe UI</span>
+            </div>
         </div>
 
         <div class="ui-group">

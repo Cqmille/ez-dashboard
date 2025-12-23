@@ -478,23 +478,62 @@ body::after {
     margin: 0;
 }
 
+.ui-header-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+#random-ui-btn,
 #reset-ui-btn {
-    background: rgba(255, 71, 87, 0.2);
-    border: 1px solid var(--danger-color);
-    color: var(--danger-color);
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     cursor: pointer;
     transition: all var(--transition-smooth);
     display: flex;
     align-items: center;
     justify-content: center;
+    line-height: 1;
+    padding: 0;
+}
+
+#random-ui-btn {
+    background: rgba(0, 212, 255, 0.2);
+    border: 1px solid var(--accent-tomorrow);
+    color: var(--accent-tomorrow);
+}
+
+#random-ui-btn:hover {
+    background: var(--accent-tomorrow);
+    color: #000000;
+}
+
+#reset-ui-btn {
+    background: rgba(255, 71, 87, 0.2);
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
 }
 
 #reset-ui-btn:hover {
     background: var(--danger-color);
+    color: #FFFFFF;
+}
+
+.ui-row select {
+    flex: 1;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    color: #FFFFFF;
+    font-size: 0.85rem;
+    padding: 0 8px;
+    cursor: pointer;
+}
+
+.ui-row select option {
+    background: #1a1a2e;
     color: #FFFFFF;
 }
 

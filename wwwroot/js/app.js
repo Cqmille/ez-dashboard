@@ -169,7 +169,23 @@ function updateRefreshButton() {
 const settingsBtn = document.getElementById('settings-btn');
 const uiMenu = document.getElementById('ui-menu');
 const resetBtn = document.getElementById('reset-ui-btn');
+const randomBtn = document.getElementById('random-ui-btn');
+const fontSelect = document.getElementById('ctrl-font-family');
 const UI_STORAGE_KEY = 'ez-dashboard-ui-settings';
+
+// Polices disponibles
+const availableFonts = [
+    "'Segoe UI', system-ui, sans-serif",
+    "'Arial', sans-serif",
+    "'Roboto', sans-serif",
+    "'Open Sans', sans-serif",
+    "'Lato', sans-serif",
+    "'Montserrat', sans-serif",
+    "'Poppins', sans-serif",
+    "'Inter', sans-serif",
+    "'Georgia', serif",
+    "'Times New Roman', serif"
+];
 
 // Toggle menu visibility
 settingsBtn.addEventListener('click', () => {
@@ -247,6 +263,8 @@ function saveUISettings() {
             settings[control.id] = inputEl.value;
         }
     });
+    // Sauvegarder aussi la police
+    settings['font-family'] = fontSelect.value;
     localStorage.setItem(UI_STORAGE_KEY, JSON.stringify(settings));
 }
 
@@ -267,6 +285,13 @@ function loadUISettings() {
                 }
             }
         });
+        // Charger la police
+        if (settings['font-family']) {
+            fontSelect.value = settings['font-family'];
+            document.body.style.fontFamily = settings['font-family'];
+            const fontName = settings['font-family'].split(',')[0].replace(/'/g, '').trim();
+            document.getElementById('val-font-family').textContent = fontName;
+        }
     } catch (e) {
         console.error('Erreur chargement réglages UI:', e);
     }
@@ -282,6 +307,13 @@ function resetUISettings() {
             updateValueLabel(control, control.default);
         }
     });
+    // Réinitialiser la police
+    const defaultFont = availableFonts[0];
+    fontSelect.value = defaultFont;
+    document.body.style.fontFamily = defaultFont;
+    const fontName = defaultFont.split(',')[0].replace(/'/g, '').trim();
+    document.getElementById('val-font-family').textContent = fontName;
+
     localStorage.removeItem(UI_STORAGE_KEY);
 }
 
@@ -311,6 +343,64 @@ uiControls.forEach(control => {
 
 // Bouton reset
 resetBtn.addEventListener('click', resetUISettings);
+
+// Bouton randomize
+randomBtn.addEventListener('click', randomizeUISettings);
+
+// Sélecteur de police
+fontSelect.addEventListener('change', (e) => {
+    const fontValue = e.target.value;
+    document.body.style.fontFamily = fontValue;
+    // Mettre à jour le label
+    const fontName = fontValue.split(',')[0].replace(/'/g, '').trim();
+    document.getElementById('val-font-family').textContent = fontName;
+    saveUISettings();
+});
+
+// Générer une valeur aléatoire pour un contrôle
+function getRandomValue(control) {
+    const inputEl = document.getElementById(`ctrl-${control.id}`);
+    if (!inputEl) return control.default;
+
+    if (control.type === 'color') {
+        // Générer couleur aléatoire
+        const r = Math.floor(Math.random() * 256);
+        const g = Math.floor(Math.random() * 256);
+        const b = Math.floor(Math.random() * 256);
+        return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    } else {
+        // Générer valeur aléatoire dans la plage du slider
+        const min = parseFloat(inputEl.min);
+        const max = parseFloat(inputEl.max);
+        const step = parseFloat(inputEl.step);
+        const steps = Math.floor((max - min) / step);
+        const randomStep = Math.floor(Math.random() * (steps + 1));
+        return (min + randomStep * step).toFixed(2).replace(/\.?0+$/, '');
+    }
+}
+
+// Randomiser tous les réglages
+function randomizeUISettings() {
+    uiControls.forEach(control => {
+        const inputEl = document.getElementById(`ctrl-${control.id}`);
+        if (inputEl) {
+            const randomValue = getRandomValue(control);
+            inputEl.value = randomValue;
+            updateCSSVar(control, randomValue);
+            updateValueLabel(control, randomValue);
+        }
+    });
+
+    // Randomiser aussi la police
+    const randomFontIndex = Math.floor(Math.random() * availableFonts.length);
+    const randomFont = availableFonts[randomFontIndex];
+    fontSelect.value = randomFont;
+    document.body.style.fontFamily = randomFont;
+    const fontName = randomFont.split(',')[0].replace(/'/g, '').trim();
+    document.getElementById('val-font-family').textContent = fontName;
+
+    saveUISettings();
+}
 
 // Charger les réglages sauvegardés au démarrage
 loadUISettings();
