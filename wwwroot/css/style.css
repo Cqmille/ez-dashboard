@@ -570,6 +570,11 @@ body::after {
     margin-bottom: 0;
 }
 
+.ui-row-indent {
+    padding-left: 70px;
+    margin-top: -4px;
+}
+
 .ui-label {
     color: #CCCCCC;
     font-size: 0.85rem;
