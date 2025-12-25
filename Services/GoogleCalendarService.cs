@@ -44,7 +44,8 @@ public class GoogleCalendarService
                 {
                     time = e.IsAllDay ? "Journée" : e.Start.ToString("HH'h'mm"),
                     title = e.Summary,
-                    isPast = !e.IsAllDay && e.Start < currentTime
+                    // Barrer seulement quand l'événement est terminé (pas juste commencé)
+                    isPast = !e.IsAllDay && e.End < currentTime
                 })
                 .ToList();
 
@@ -84,14 +85,31 @@ public class GoogleCalendarService
             if (string.IsNullOrEmpty(summary))
                 summary = "(Sans titre)";
 
-            var dtStart = ExtractDateTimeValue(content);
+            var dtStart = ExtractDateTimeValue(content, "DTSTART");
             if (dtStart == null)
                 continue;
+
+            var dtEnd = ExtractDateTimeValue(content, "DTEND");
+            // Si pas de DTEND, utiliser Start + 1 heure par défaut (ou fin de journée pour all-day)
+            DateTime endTime;
+            if (dtEnd != null)
+            {
+                endTime = dtEnd.Value.DateTime;
+            }
+            else if (dtStart.Value.IsAllDay)
+            {
+                endTime = dtStart.Value.DateTime.AddDays(1);
+            }
+            else
+            {
+                endTime = dtStart.Value.DateTime.AddHours(1);
+            }
 
             events.Add(new CalendarEvent
             {
                 Summary = summary,
                 Start = dtStart.Value.DateTime,
+                End = endTime,
                 IsAllDay = dtStart.Value.IsAllDay
             });
         }
@@ -116,13 +134,13 @@ public class GoogleCalendarService
         return null;
     }
 
-    private (DateTime DateTime, bool IsAllDay)? ExtractDateTimeValue(string content)
+    private (DateTime DateTime, bool IsAllDay)? ExtractDateTimeValue(string content, string property = "DTSTART")
     {
-        // Try DTSTART with timezone or as datetime
+        // Try with timezone or as datetime
         var patterns = new[]
         {
-            @"DTSTART(?:;TZID=[^:]+)?:(\d{8}T\d{6})",  // DateTime format: 20231225T140000
-            @"DTSTART(?:;VALUE=DATE)?:(\d{8})(?!\d)",   // Date only format: 20231225
+            $@"{property}(?:;TZID=[^:]+)?:(\d{{8}}T\d{{6}})",  // DateTime format: 20231225T140000
+            $@"{property}(?:;VALUE=DATE)?:(\d{{8}})(?!\d)",   // Date only format: 20231225
         };
 
         foreach (var pattern in patterns)
@@ -151,6 +169,7 @@ public class GoogleCalendarService
     {
         public string Summary { get; set; } = "";
         public DateTime Start { get; set; }
+        public DateTime End { get; set; }
         public bool IsAllDay { get; set; }
     }
 }

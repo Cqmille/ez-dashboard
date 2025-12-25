@@ -85,16 +85,19 @@ app.MapGet("/api/time", () =>
     var now = DateTime.Now;
     var hour = now.Hour;
 
+    // Périodes de la journée :
+    // 0h-6h : Nuit, 6h-12h : Matin, 12h-18h : Après-midi, 18h-0h : Soir
     string moment;
-    if (hour >= 5 && hour < 12) moment = "Matin";
+    if (hour >= 0 && hour < 6) moment = "Nuit";
+    else if (hour >= 6 && hour < 12) moment = "Matin";
     else if (hour >= 12 && hour < 18) moment = "Après-midi";
-    else if (hour >= 18 && hour < 22) moment = "Soir";
-    else moment = "Nuit";
+    else moment = "Soir";
 
     return Results.Ok(new
     {
         date = now.ToString("dddd d MMMM yyyy", new System.Globalization.CultureInfo("fr-FR")),
-        time = now.ToString("HH:mm"),
+        hours = now.ToString("HH"),
+        minutes = now.ToString("mm"),
         moment
     });
 });

@@ -5,7 +5,9 @@ const REFRESH_MESSAGES_INTERVAL = 30000; // 30 secondes
 const REFRESH_COOLDOWN = 30;             // 30 secondes de cooldown
 
 // ========== ELEMENTS ==========
-const timeEl = document.getElementById('time');
+const timeHoursEl = document.getElementById('time-hours');
+const timeMinutesEl = document.getElementById('time-minutes');
+const timeSeparatorEl = document.getElementById('time-separator');
 const momentEl = document.getElementById('moment');
 const dateEl = document.getElementById('date');
 const todayEventsEl = document.getElementById('today-events');
@@ -23,12 +25,50 @@ async function updateTime() {
         const response = await fetch('/api/time');
         const data = await response.json();
 
-        timeEl.textContent = data.time;
+        timeHoursEl.textContent = data.hours;
+        timeMinutesEl.textContent = data.minutes;
         momentEl.textContent = data.moment;
         dateEl.textContent = data.date;
+
+        // Synchroniser le clignotement avec les secondes
+        syncBlinkWithSeconds();
     } catch (error) {
         console.error('Erreur updateTime:', error);
     }
+}
+
+// Synchronisation du clignotement avec les secondes
+let blinkInterval = null;
+function syncBlinkWithSeconds() {
+    // Annuler l'intervalle précédent
+    if (blinkInterval) {
+        clearInterval(blinkInterval);
+    }
+
+    // Récupérer la vitesse de clignotement (en ms)
+    const blinkSpeedSec = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--blink-speed')) || 1;
+    const blinkSpeedMs = blinkSpeedSec * 1000;
+
+    // Calculer le délai pour synchroniser avec le début de la prochaine seconde
+    const now = new Date();
+    const msUntilNextSecond = 1000 - now.getMilliseconds();
+
+    // Attendre le début de la prochaine seconde pour démarrer
+    setTimeout(() => {
+        // Démarrer visible
+        timeSeparatorEl.classList.remove('hidden');
+
+        // Créer l'intervalle de clignotement
+        let visible = true;
+        blinkInterval = setInterval(() => {
+            visible = !visible;
+            if (visible) {
+                timeSeparatorEl.classList.remove('hidden');
+            } else {
+                timeSeparatorEl.classList.add('hidden');
+            }
+        }, blinkSpeedMs / 2);
+    }, msUntilNextSecond);
 }
 
 async function updateEvents() {
@@ -196,15 +236,16 @@ settingsBtn.addEventListener('click', () => {
 
 // Configuration des contrôles UI avec valeurs par défaut
 const uiControls = [
+    // Date (en haut maintenant)
+    { id: 'date-size', cssVar: '--date-size', unit: 'rem', type: 'range', default: '2' },
+    { id: 'date-color', cssVar: '--date-color', unit: '', type: 'color', default: '#FFD700' },
     // Heure
     { id: 'time-size', cssVar: '--time-size', unit: 'rem', type: 'range', default: '6' },
     { id: 'time-color', cssVar: '--time-color', unit: '', type: 'color', default: '#FFFFFF' },
+    { id: 'blink-speed', cssVar: '--blink-speed', unit: 's', type: 'range', default: '1', special: 'blink' },
     // Moment
     { id: 'moment-size', cssVar: '--moment-size', unit: 'rem', type: 'range', default: '2.4' },
     { id: 'moment-color', cssVar: '--moment-color', unit: '', type: 'color', default: '#00D4FF' },
-    // Date
-    { id: 'date-size', cssVar: '--date-size', unit: 'rem', type: 'range', default: '2' },
-    { id: 'date-color', cssVar: '--date-color', unit: '', type: 'color', default: '#FFD700' },
     // Événements
     { id: 'event-size', cssVar: '--event-font-size', unit: 'rem', type: 'range', default: '1.7' },
     { id: 'event-time-size', cssVar: '--event-time-size', unit: 'rem', type: 'range', default: '1.8' },
@@ -225,6 +266,10 @@ function updateCSSVar(control, value) {
         // Mise à jour spéciale pour l'opacité du verre
         root.style.setProperty('--glass-bg', `rgba(0, 0, 0, ${value})`);
         root.style.setProperty('--glass-bg-hover', `rgba(0, 0, 0, ${parseFloat(value) + 0.1})`);
+    } else if (control.special === 'blink') {
+        // Mise à jour de la vitesse de clignotement et resync
+        root.style.setProperty(control.cssVar, value + control.unit);
+        syncBlinkWithSeconds();
     } else if (control.id === 'time-color') {
         // Mise à jour couleur + glow pour l'heure
         root.style.setProperty('--time-color', value);

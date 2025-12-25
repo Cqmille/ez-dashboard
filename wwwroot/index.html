@@ -15,9 +15,9 @@
     <div id="app">
         <!-- Heure et Date -->
         <header id="header">
-            <div id="time">--h--</div>
-            <div id="moment">...</div>
             <div id="date">...</div>
+            <div id="time"><span id="time-hours">--</span><span id="time-separator">:</span><span id="time-minutes">--</span></div>
+            <div id="moment">...</div>
         </header>
 
         <!-- Événements -->
@@ -74,7 +74,17 @@
         </div>
 
         <div class="ui-group">
-            <label>Heure / Moment / Date</label>
+            <label>Date / Heure / Moment</label>
+            <div class="ui-row">
+                <span class="ui-label">Jour:</span>
+                <input type="range" id="ctrl-date-size" min="1" max="4" step="0.2" value="2">
+                <span class="ui-value" id="val-date-size">2rem</span>
+            </div>
+            <div class="ui-row">
+                <span class="ui-label">Couleur:</span>
+                <input type="color" id="ctrl-date-color" value="#FFD700">
+                <span class="ui-value" id="val-date-color">#FFD700</span>
+            </div>
             <div class="ui-row">
                 <span class="ui-label">Heure:</span>
                 <input type="range" id="ctrl-time-size" min="3" max="10" step="0.5" value="6">
@@ -86,6 +96,11 @@
                 <span class="ui-value" id="val-time-color">#FFFFFF</span>
             </div>
             <div class="ui-row">
+                <span class="ui-label">Clignotement:</span>
+                <input type="range" id="ctrl-blink-speed" min="0.5" max="2" step="0.25" value="1">
+                <span class="ui-value" id="val-blink-speed">1s</span>
+            </div>
+            <div class="ui-row">
                 <span class="ui-label">Moment:</span>
                 <input type="range" id="ctrl-moment-size" min="1" max="5" step="0.2" value="2.4">
                 <span class="ui-value" id="val-moment-size">2.4rem</span>
@@ -94,16 +109,6 @@
                 <span class="ui-label">Couleur:</span>
                 <input type="color" id="ctrl-moment-color" value="#00D4FF">
                 <span class="ui-value" id="val-moment-color">#00D4FF</span>
-            </div>
-            <div class="ui-row">
-                <span class="ui-label">Date:</span>
-                <input type="range" id="ctrl-date-size" min="1" max="4" step="0.2" value="2">
-                <span class="ui-value" id="val-date-size">2rem</span>
-            </div>
-            <div class="ui-row">
-                <span class="ui-label">Couleur:</span>
-                <input type="color" id="ctrl-date-color" value="#FFD700">
-                <span class="ui-value" id="val-date-color">#FFD700</span>
             </div>
         </div>
 
