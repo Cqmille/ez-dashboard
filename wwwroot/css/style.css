@@ -776,3 +776,35 @@ body::after {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* Animation fluide gérée par le processeur graphique */
+@keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+.blink-sync {
+    /* On utilise la variable --blink-speed définie dans ton JS */
+    animation: blink var(--blink-speed, 1s) step-start infinite;
+}
+
+/* Un événement passé est grisé et barré */
+.day-block li.past {
+    opacity: 0.4;
+    text-decoration: line-through;
+}
+
+/* Un événement en cours est mis en avant et SURTOUT pas barré */
+.day-block li.ongoing {
+    opacity: 1 !important;
+    background: rgba(255, 255, 255, 0.15); /* Petit fond pour le faire ressortir */
+    border-radius: 8px;
+    padding: 10px;
+    border-left: 4px solid var(--accent-today);
+}
+
+.day-block li.ongoing .event-title {
+    text-decoration: none !important;
+    font-weight: bold;
+    color: #fff;
+}

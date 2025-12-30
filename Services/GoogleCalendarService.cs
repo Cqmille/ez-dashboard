@@ -37,17 +37,19 @@ public class GoogleCalendarService
             var currentTime = DateTime.Now;
             var tomorrow = now.AddDays(1);
 
-            var todayEvents = events
-                .Where(e => e.Start.Date == now)
-                .OrderBy(e => e.Start)
-                .Select(e => new
-                {
-                    time = e.IsAllDay ? "Journée" : e.Start.ToString("HH'h'mm"),
-                    title = e.Summary,
-                    // Barrer seulement quand l'événement est terminé (pas juste commencé)
-                    isPast = !e.IsAllDay && e.End < currentTime
-                })
-                .ToList();
+        var todayEvents = events
+            .Where(e => e.Start.Date == now)
+            .OrderBy(e => e.Start)
+            .Select(e => new
+            {
+                time = e.IsAllDay ? "Journée" : e.Start.ToString("HH'h'mm"),
+                title = e.Summary,
+                // Un événement est passé uniquement s'il est totalement fini
+                isPast = !e.IsAllDay && currentTime > e.End,
+                // Un événement est "en cours" s'il a commencé et n'est pas encore fini
+                isOngoing = !e.IsAllDay && currentTime >= e.Start && currentTime <= e.End
+            })
+            .ToList();
 
             var tomorrowEvents = events
                 .Where(e => e.Start.Date == tomorrow)
@@ -136,11 +138,11 @@ public class GoogleCalendarService
 
     private (DateTime DateTime, bool IsAllDay)? ExtractDateTimeValue(string content, string property = "DTSTART")
     {
-        // Try with timezone or as datetime
+        // Patterns mis à jour pour capturer le "Z" optionnel (UTC)
         var patterns = new[]
         {
-            $@"{property}(?:;TZID=[^:]+)?:(\d{{8}}T\d{{6}})",  // DateTime format: 20231225T140000
-            $@"{property}(?:;VALUE=DATE)?:(\d{{8}})(?!\d)",   // Date only format: 20231225
+            $@"{property}(?:;TZID=[^:]+)?:(\d{{8}}T\d{{6}}Z?)",  // DateTime format: 20231225T140000(Z)
+            $@"{property}(?:;VALUE=DATE)?:(\d{{8}})(?!\d)",     // Date only format: 20231225
         };
 
         foreach (var pattern in patterns)
@@ -149,15 +151,26 @@ public class GoogleCalendarService
             if (match.Success)
             {
                 var value = match.Groups[1].Value;
-                if (value.Length == 8) // Date only
+                
+                if (value.Length == 8) // Format Date seule (Toute la journée)
                 {
                     if (DateTime.TryParseExact(value, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out var date))
                         return (date, true);
                 }
-                else if (value.Length == 15) // DateTime
+                else if (value.Length >= 15) // Format DateTime (avec ou sans Z)
                 {
-                    if (DateTime.TryParseExact(value, "yyyyMMdd'T'HHmmss", null, System.Globalization.DateTimeStyles.None, out var dateTime))
+                    bool isUtc = value.EndsWith("Z");
+                    string format = isUtc ? "yyyyMMdd'T'HHmmss'Z'" : "yyyyMMdd'T'HHmmss";
+
+                    if (DateTime.TryParseExact(value, format, null, System.Globalization.DateTimeStyles.None, out var dateTime))
+                    {
+                        // Si l'heure est en UTC (se termine par Z), on la convertit en heure locale
+                        if (isUtc)
+                        {
+                            dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc).ToLocalTime();
+                        }
                         return (dateTime, false);
+                    }
                 }
             }
         }

@@ -39,36 +39,23 @@ async function updateTime() {
 
 // Synchronisation du clignotement avec les secondes
 let blinkInterval = null;
-function syncBlinkWithSeconds() {
-    // Annuler l'intervalle précédent
-    if (blinkInterval) {
-        clearInterval(blinkInterval);
+async function updateTime() {
+    try {
+        const response = await fetch('/api/time');
+        const data = await response.json();
+
+        timeHoursEl.textContent = data.hours;
+        timeMinutesEl.textContent = data.minutes;
+        momentEl.textContent = data.moment;
+        dateEl.textContent = data.date;
+
+        // On lance la synchro uniquement si elle n'est pas déjà active
+        if (!timeSeparatorEl.classList.contains('blink-sync')) {
+            initBlinkSync();
+        }
+    } catch (error) {
+        console.error('Erreur updateTime:', error);
     }
-
-    // Récupérer la vitesse de clignotement (en ms)
-    const blinkSpeedSec = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--blink-speed')) || 1;
-    const blinkSpeedMs = blinkSpeedSec * 1000;
-
-    // Calculer le délai pour synchroniser avec le début de la prochaine seconde
-    const now = new Date();
-    const msUntilNextSecond = 1000 - now.getMilliseconds();
-
-    // Attendre le début de la prochaine seconde pour démarrer
-    setTimeout(() => {
-        // Démarrer visible
-        timeSeparatorEl.classList.remove('hidden');
-
-        // Créer l'intervalle de clignotement
-        let visible = true;
-        blinkInterval = setInterval(() => {
-            visible = !visible;
-            if (visible) {
-                timeSeparatorEl.classList.remove('hidden');
-            } else {
-                timeSeparatorEl.classList.add('hidden');
-            }
-        }, blinkSpeedMs / 2);
-    }, msUntilNextSecond);
 }
 
 async function updateEvents() {
@@ -78,12 +65,19 @@ async function updateEvents() {
 
         // Aujourd'hui
         if (data.today && data.today.length > 0) {
-            todayEventsEl.innerHTML = data.today.map(evt => `
-                <li class="${evt.isPast ? 'past' : ''}">
-                    <span class="event-time">${evt.time}</span>
-                    <span class="event-title">${evt.title}</span>
-                </li>
-            `).join('');
+            todayEventsEl.innerHTML = data.today.map(evt => {
+                // On construit la liste des classes
+                let classes = [];
+                if (evt.isPast) classes.push('past');
+                if (evt.isOngoing) classes.push('ongoing');
+
+                return `
+                    <li class="${classes.join(' ')}">
+                        <span class="event-time">${evt.time}</span>
+                        <span class="event-title">${evt.title}</span>
+                    </li>
+                `;
+            }).join('');
         } else {
             todayEventsEl.innerHTML = '<li class="no-events">Aucun événement</li>';
         }
@@ -267,9 +261,10 @@ function updateCSSVar(control, value) {
         root.style.setProperty('--glass-bg', `rgba(0, 0, 0, ${value})`);
         root.style.setProperty('--glass-bg-hover', `rgba(0, 0, 0, ${parseFloat(value) + 0.1})`);
     } else if (control.special === 'blink') {
-        // Mise à jour de la vitesse de clignotement et resync
         root.style.setProperty(control.cssVar, value + control.unit);
-        syncBlinkWithSeconds();
+        // On force le redémarrage de l'animation pour la nouvelle vitesse
+        timeSeparatorEl.classList.remove('blink-sync');
+        initBlinkSync();
     } else if (control.id === 'time-color') {
         // Mise à jour couleur + glow pour l'heure
         root.style.setProperty('--time-color', value);
@@ -445,6 +440,16 @@ function randomizeUISettings() {
     document.getElementById('val-font-family').textContent = fontName;
 
     saveUISettings();
+}
+
+function initBlinkSync() {
+    const now = new Date();
+    // Calcul précis du délai jusqu'à la prochaine seconde pile
+    const msUntilNextSecond = 1000 - now.getMilliseconds();
+
+    setTimeout(() => {
+        timeSeparatorEl.classList.add('blink-sync');
+    }, msUntilNextSecond);
 }
 
 // Charger les réglages sauvegardés au démarrage
