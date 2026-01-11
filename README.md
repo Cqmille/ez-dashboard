@@ -100,7 +100,7 @@ cd /var/www/apps/ez-dashboard
 git pull
 
 # 3. Rebuild
-dotnet build -c Release
+dotnet build mamy-dashboard.sln -c Release
 
 # 4. Redémarrer le service
 sudo systemctl restart mamy-dashboard
