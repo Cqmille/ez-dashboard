@@ -54,20 +54,35 @@ public class GoogleCalendarService
 
             var occurrences = calendar
                 .GetOccurrences(startSearch, endSearch)
-                .OrderBy(o => o.Period.StartTime.Value)
                 .ToList();
+
+            _logger.LogInformation($"Nombre total d'occurrences trouvées: {occurrences.Count}");
 
             var todayEvents = occurrences
-                .Where(o => GetLocalDate(o.Period.StartTime) == todayDate)
+                .Where(o =>
+                {
+                    var date = GetLocalDate(o.Period.StartTime).Date;
+                    return date == todayDate;
+                })
+                .OrderBy(o => GetLocalDate(o.Period.StartTime))
                 .Select(o => MapEvent(o, now))
                 .Where(e => e != null)
                 .ToList();
 
+            _logger.LogInformation($"Événements aujourd'hui: {todayEvents.Count}");
+
             var tomorrowEvents = occurrences
-                .Where(o => GetLocalDate(o.Period.StartTime) == tomorrowDate)
+                .Where(o =>
+                {
+                    var date = GetLocalDate(o.Period.StartTime).Date;
+                    return date == tomorrowDate;
+                })
+                .OrderBy(o => GetLocalDate(o.Period.StartTime))
                 .Select(o => MapEvent(o, now))
                 .Where(e => e != null)
                 .ToList();
+
+            _logger.LogInformation($"Événements demain: {tomorrowEvents.Count}");
 
             return new { today = todayEvents, tomorrow = tomorrowEvents };
         }
@@ -82,25 +97,20 @@ public class GoogleCalendarService
         }
     }
 
-    private DateTime GetLocalDate(IDateTime dateTime)
+    private DateTime GetLocalDate(IDateTime? dateTime)
     {
-        if (dateTime == null || dateTime.Value == DateTime.MinValue)
+        if (dateTime?.Value == null)
             return DateTime.MinValue;
 
-        // Convertir en heure locale si nécessaire
         var dt = dateTime.Value;
 
         // Si c'est une date UTC, la convertir en heure locale
         if (dt.Kind == DateTimeKind.Utc)
         {
-            dt = dt.ToLocalTime();
-        }
-        else if (dt.Kind == DateTimeKind.Unspecified)
-        {
-            // Si le fuseau horaire n'est pas spécifié, on suppose qu'il s'agit d'une heure locale
-            dt = DateTime.SpecifyKind(dt, DateTimeKind.Local);
+            return dt.ToLocalTime();
         }
 
+        // Pour les dates "Unspecified", on les traite comme locales
         return dt;
     }
 
