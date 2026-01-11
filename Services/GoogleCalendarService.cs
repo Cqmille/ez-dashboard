@@ -56,7 +56,7 @@ public class GoogleCalendarService
                 .GetOccurrences(startSearch, endSearch)
                 .ToList();
 
-            _logger.LogInformation($"Nombre total d'occurrences trouvées: {occurrences.Count}");
+            _logger.LogDebug("Nombre total d'occurrences trouvées: {Count}", occurrences.Count);
 
             var todayEvents = occurrences
                 .Where(o =>
@@ -69,7 +69,7 @@ public class GoogleCalendarService
                 .Where(e => e != null)
                 .ToList();
 
-            _logger.LogInformation($"Événements aujourd'hui: {todayEvents.Count}");
+            _logger.LogDebug("Événements aujourd'hui: {Count}", todayEvents.Count);
 
             var tomorrowEvents = occurrences
                 .Where(o =>
@@ -82,7 +82,7 @@ public class GoogleCalendarService
                 .Where(e => e != null)
                 .ToList();
 
-            _logger.LogInformation($"Événements demain: {tomorrowEvents.Count}");
+            _logger.LogDebug("Événements demain: {Count}", tomorrowEvents.Count);
 
             return new { today = todayEvents, tomorrow = tomorrowEvents };
         }
